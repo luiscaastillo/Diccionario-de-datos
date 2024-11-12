@@ -107,7 +107,7 @@ void printEnt(char *nomEnt){
     FILE *diccionario;
     do{
         fread(&aux, sizeof(ENT), 1, diccionario);
-    } while ( aux.link > 0 && !strcmp(nomEnt, aux.nomEnt));
+    } while (aux.link > 0 && !strcmp(nomEnt, aux.nomEnt));
     if (!strcmp(nomEnt, aux.nomEnt))
         printf("Nombre de la entidad: %s", aux.nomEnt);
     else 
@@ -122,6 +122,11 @@ void printAtr(ENT ent, ATR atr){
     do{
         fread(&dir, sizeof(long), 1, diccionario);
     } while (dir != EMPTY);
+}
+
+void nomEntidad(char *nom){
+    printf("Ingrese el nombre de la entidad: ");
+    scanf("%s", nom);
 }
 
 void nomDiccionario(char *nom){
@@ -161,28 +166,37 @@ int altaEnt(char *nom){
     return res;
 }
 
-int bajaEnt(char *nom ,char *nomEnt){
+int bajaEnt(char *nom){
     int res = 0;
+    long dir;
     ENT aux, prev;
     FILE *diccionario;
+    char nomEnt[TAM];
+    nomEntidad(nomEnt);
     if (openFile(nom)){
         do {
             fread(&aux, sizeof(ENT), 1, diccionario);
-        } while (strcmp(nomEnt, aux.nomEnt));
+        } while (!strcmp(nomEnt, aux.nomEnt));
         fseek(diccionario, -sizeof(ENT), SEEK_CUR);
-        aux.link = EMPTY;
-        prev.link = EMPTY;
+        dir = aux.link;
+        fread(&prev, sizeof(ENT), 1, diccionario);
+        prev.link = dir;
+        aux.link = EMPTY;   
+        fseek(diccionario, -sizeof(ENT), SEEK_CUR);
         fwrite(&prev, sizeof(ENT), 1, diccionario);
         closeFile(diccionario);
     }
     return res;
 }
-int consultEnt(char *nomDic, char *nomEnt){
+
+int consultEnt(char *nom, char *nomEnt){
     int res = 0;
     ENT aux;
     FILE *diccionario;
-    if(openFile(nomDic)){
-        while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt))
+    if(openFile(nom)){
+        while(fread(&aux, sizeof(ENT), 1, diccionario) && !strcmp(nomEnt, aux.nomEnt))
+        if (!strcmp(nomEnt, aux.nomEnt))
+            printEnt(nomEnt);
         closeFile(diccionario);
     }
     return res;
@@ -190,6 +204,7 @@ int consultEnt(char *nomDic, char *nomEnt){
 
 int actuEntidad(char *nom){
     int res = 0;
+
     return res;
 }
 int reportEnt(char *nom){
