@@ -92,6 +92,38 @@ int closeFile(FILE *diccionario){
     return 1;
 }
 
+
+
+ENT capEnt(){
+    ENT nvo;
+    printf("Ingresa el nombre de la entidad: ");
+    scanf("%s", nvo.nomEnt);
+    nvo.headAtr = nvo.headDato = nvo.link = EMPTY;
+    return nvo;
+}
+
+void printEnt(char *nomEnt){
+    ENT aux;
+    FILE *diccionario;
+    do{
+        fread(&aux, sizeof(ENT), 1, diccionario);
+    } while ( aux.link > 0 && !strcmp(nomEnt, aux.nomEnt));
+    if (!strcmp(nomEnt, aux.nomEnt))
+        printf("Nombre de la entidad: %s", aux.nomEnt);
+    else 
+        printf("No se encontró la entidad\n");
+}
+
+void printAtr(ENT ent, ATR atr){
+    long dir;
+    FILE *diccionario;
+    printf("Atributos de la entidad: %s", ent.nomEnt);
+    fseek(diccionario, ent.headAtr, SEEK_SET);
+    do{
+        fread(&dir, sizeof(long), 1, diccionario);
+    } while (dir != EMPTY);
+}
+
 void nomDiccionario(char *nom){
     printf("Ingrese el nombre del diccionario: ");
     scanf("%s", nom);
@@ -110,14 +142,6 @@ int iniDicc(char *nom){
         closeFile(diccionario);
     }
     return res;
-}
-
-ENT capEnt(){
-    ENT nvo;
-    printf("Ingresa el nombre de la entidad: ");
-    scanf("%s", nvo.nomEnt);
-    nvo.headAtr = nvo.headDato = nvo.link = EMPTY;
-    return nvo;
 }
 
 int altaEnt(char *nom){
@@ -153,15 +177,14 @@ int bajaEnt(char *nom ,char *nomEnt){
     }
     return res;
 }
-int consultEnt(char *nom, char *nomEnt){
+int consultEnt(char *nomDic, char *nomEnt){
     int res = 0;
     ENT aux;
     FILE *diccionario;
-    openFile(nom);
-    do{
-        fread(&aux, sizeof(ENT), 1, diccionario);
-    } while( strcmp(nomEnt, aux.nomEnt));
-    closeFile(diccionario);
+    if(openFile(nomDic)){
+        while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt))
+        closeFile(diccionario);
+    }
     return res;
 }
 
