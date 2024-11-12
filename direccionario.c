@@ -92,8 +92,6 @@ int closeFile(FILE *diccionario){
     return 1;
 }
 
-
-
 ENT capEnt(){
     ENT nvo;
     printf("Ingresa el nombre de la entidad: ");
