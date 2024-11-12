@@ -25,7 +25,7 @@ typedef struct{
 } ATR;
 
 int main(){
-    ENT nvo;
+
     return 0;
 }
 
@@ -92,6 +92,11 @@ int closeFile(FILE *diccionario){
     return 1;
 }
 
+void nomDiccionario(char *nom){
+    printf("Ingrese el nombre del diccionario: ");
+    scanf("%s", nom);
+}
+
 int iniDicc(char *nom){
     FILE *diccionario;
     int res = 0;
@@ -148,10 +153,18 @@ int bajaEnt(char *nom ,char *nomEnt){
     }
     return res;
 }
-int consultEnt(char *nom){
+int consultEnt(char *nom, char *nomEnt){
     int res = 0;
+    ENT aux;
+    FILE *diccionario;
+    openFile(nom);
+    do{
+        fread(&aux, sizeof(ENT), 1, diccionario);
+    } while( strcmp(nomEnt, aux.nomEnt));
+    closeFile(diccionario);
     return res;
 }
+
 int actuEntidad(char *nom){
     int res = 0;
     return res;
