@@ -177,8 +177,9 @@ int bajaEnt(char *nom){
         do {
             fread(&aux, sizeof(ENT), 1, diccionario);
         } while (!strcmp(nomEnt, aux.nomEnt));
-        fseek(diccionario, -sizeof(ENT), SEEK_CUR);
+        fread(&prev, sizeof(ENT), 1, diccionario);
         dir = aux.link;
+        fseek(diccionario, -sizeof(ENT)*2, SEEK_CUR);
         fread(&prev, sizeof(ENT), 1, diccionario);
         prev.link = dir;
         aux.link = EMPTY;   
