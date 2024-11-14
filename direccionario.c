@@ -25,15 +25,27 @@ typedef struct{
 } ATR;
 
 int main(){
-
+    int op;
+    FILE *diccionario;
+    op = menuGeneral();
+    switch (op){
+        case 1:
+        break;
+        case 2:
+        break;
+        default: printf("Opción inválida\n");
+        break;
+    }
     return 0;
 }
 
-// Archivos
-int openFile(char *nom){
+// Manejo archivos
+int openFile(FILE *diccionario){
     int res = 0;
-    strcat(nom, ".dic");
-    if (fopen(nom, "ab"))
+    char nom[TAM];
+    nomDiccionario(nom);
+    diccionario = fopen(nom, "ab");
+    if (diccionario)
         res = 1;
     return res;
 }
@@ -41,6 +53,35 @@ int openFile(char *nom){
 int closeFile(FILE *diccionario){
     fclose(diccionario);
     return 1;
+}
+
+int creaDiccionario(FILE *diccionario){
+    int res = 0, op;
+    char nom[TAM];
+    nomDiccionario(nom);
+    diccionario = fopen(nom, "rb");
+    if (diccionario){
+        printf("\tEl diccionario ya existe, seleccione una opción: ");
+        printf("1. Sobreescribirlo\n");
+        printf("2. Abrir el diccionario existente\n");
+        printf("3. Salir\n");
+        scanf("%d", &op);
+        closeFile(diccionario);
+    }
+    switch (op){
+        case 1: diccionario = fopen(nom, "wb");
+                if (diccionario)
+                    res = 1;
+        break;
+        case 2: if(openFile(diccionario))
+                res = 1;
+        break;
+        case 3: printf("Archivo cerrado\n");
+        break;
+        default: printf("Opción inválida\n");
+        break;
+    }
+    return res;
 }
 
 // Menús
@@ -134,83 +175,67 @@ void printAtr(ENT ent, ATR atr){
 void nomDiccionario(char *nom){
     printf("Ingrese el nombre del diccionario: ");
     scanf("%s", nom);
+    strcat(nom, ".dic");
 }
 
-int iniDicc(char *nom){
-    FILE *diccionario;
+int iniDicc(FILE *diccionario){
     int res = 0;
     long aux = EMPTY;
-    if (openFile(nom)){
-        strcat(nom, ".dic");
-        if (fopen(nom, "ab")){
-            fwrite(&aux, sizeof(long), 1, diccionario);
-            res = 1;
-        }
-        closeFile(diccionario);
-    }
-    return res;
+    fwrite(&aux, sizeof(long), 1, diccionario);
+    return 1;
 }
 
-int altaEnt(char *nom){
+int altaEnt(FILE *diccionario){
     int res;
     long head, pos;
     ENT aux, nvo;
-    FILE *diccionario;
-    res = openFile(nom);
-    if (res){
-        printf("\tAlta de entidad\n");
-        nvo = capEnt();
-        fseek(diccionario, -sizeof(ENT), SEEK_END);
-        pos = ftell(diccionario);
-        fread(&aux, sizeof(ENT), 1, diccionario);
-        aux.link = pos;
-        fseek(diccionario, -sizeof(ENT), SEEK_END);
-        fwrite(&aux, sizeof(ENT), 1, diccionario);
-        fwrite(&nvo, sizeof(ENT), 1, diccionario);
-        closeFile(diccionario);
-    }
+    printf("\tAlta de entidad\n");
+    nvo = capEnt();
+    fseek(diccionario, 0, SEEK_END);
+    pos = ftell(diccionario);
+    fseek(diccionario, -sizeof(ENT), SEEK_CUR);
+    fread(&aux, sizeof(ENT), 1, diccionario);
+    aux.link = pos;
+    fseek(diccionario, -sizeof(ENT), SEEK_END);
+    fwrite(&aux, sizeof(ENT), 1, diccionario);
+    fwrite(&nvo, sizeof(ENT), 1, diccionario);
+    closeFile(diccionario);
     return res;
 }
 
-int bajaEnt(char *nom){
-    int res;
+int bajaEnt(FILE *diccionario){
+    int res = 0;
     long dir;
-    ENT aux, prev;
-    FILE *diccionario;
     char nomEnt[TAM];
-    res = openFile(nom);
-    if (res){
-        printf("\tBaja de entidad\n");
-        nomEntidad(nomEnt);
-        while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
-        if ( !strcmp(nomEnt, aux.nomEnt)){
-            fseek(diccionario, -sizeof(ENT)*2, SEEK_CUR);
-            fread(&prev, sizeof(ENT), 1, diccionario);
-            dir = aux.link;
-            prev.link = dir;
-            aux.link = EMPTY;   
-            fseek(diccionario, -sizeof(ENT), SEEK_CUR);
-            fwrite(&prev, sizeof(ENT), 1, diccionario);
-        }
-        closeFile(diccionario);
+    ENT aux, prev;
+    printf("\tBaja de entidad\n");
+    nomEntidad(nomEnt);
+    while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
+    if ( !strcmp(nomEnt, aux.nomEnt)){
+        fseek(diccionario, -sizeof(ENT)*2, SEEK_CUR);
+        fread(&prev, sizeof(ENT), 1, diccionario);
+        dir = aux.link;
+        prev.link = dir;
+        aux.link = EMPTY;   
+        fseek(diccionario, -sizeof(ENT), SEEK_CUR);
+        fwrite(&prev, sizeof(ENT), 1, diccionario);
+        res = 1;
     }
     return res;
 }
 
-int consultEnt(char *nom){
-    int res;
+int consultEnt(FILE *diccionario){
+    int res = 0;
     char nomEnt[TAM];
     ENT aux;
-    FILE *diccionario;
-    res = openFile(nom);
-    if(res){
-        printf("\tConsulta de entidad\n");
-        nomEntidad(nomEnt);
-        while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
-        if (!strcmp(nomEnt, aux.nomEnt))
-            printEnt(nomEnt);
-        closeFile(diccionario);
+    printf("\tConsulta de entidad\n");
+    nomEntidad(nomEnt);
+    while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
+    if (!strcmp(nomEnt, aux.nomEnt)){
+        printEnt(nomEnt);
+        res = 1;
     }
+    closeFile(diccionario);
     return res;
 }
 
@@ -246,3 +271,4 @@ int reportEnt(char *nom){
     }
     return res;
 }
+
