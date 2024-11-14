@@ -29,6 +29,21 @@ int main(){
     return 0;
 }
 
+// Archivos
+int openFile(char *nom){
+    int res = 0;
+    strcat(nom, ".dic");
+    if (fopen(nom, "ab"))
+        res = 1;
+    return res;
+}
+
+int closeFile(FILE *diccionario){
+    fclose(diccionario);
+    return 1;
+}
+
+// Menús
 int menuGeneral(){
     int op;
     printf("\tMenú\n");
@@ -79,23 +94,17 @@ int menuAtributo(){
     return op;   
 }
 
-int openFile(char *nom){
-    int res = 0;
-    strcat(nom, ".dic");
-    if (fopen(nom, "ab"))
-        res = 1;
-    return res;
-}
-
-int closeFile(FILE *diccionario){
-    fclose(diccionario);
-    return 1;
+// Entidades
+void nomEntidad(char *nom){
+    printf("Ingrese el nombre de la entidad: ");
+    scanf("%s", nom);
 }
 
 ENT capEnt(){
     ENT nvo;
-    printf("Ingresa el nombre de la entidad: ");
-    scanf("%s", nvo.nomEnt);
+    char nom;
+    nomEntidad(nom);
+    strcat(nvo.nomEnt, nom);
     nvo.headAtr = nvo.headDato = nvo.link = EMPTY;
     return nvo;
 }
@@ -112,6 +121,7 @@ void printEnt(char *nomEnt){
         printf("No se encontró la entidad\n");
 }
 
+// Antributos
 void printAtr(ENT ent, ATR atr){
     long dir;
     FILE *diccionario;
@@ -120,11 +130,6 @@ void printAtr(ENT ent, ATR atr){
     do{
         fread(&dir, sizeof(long), 1, diccionario);
     } while (dir != EMPTY);
-}
-
-void nomEntidad(char *nom){
-    printf("Ingrese el nombre de la entidad: ");
-    scanf("%s", nom);
 }
 
 void nomDiccionario(char *nom){
@@ -152,11 +157,14 @@ int altaEnt(char *nom){
     long head, pos;
     ENT aux, nvo;
     FILE *diccionario;
-    if (openFile(nom)){
+    res = openFile(nom);
+    if (res){
         nvo = capEnt();
         fseek(diccionario, -sizeof(ENT), SEEK_END);
         pos = ftell(diccionario);
+        fread(&aux, sizeof(ENT), 1, diccionario);
         aux.link = pos;
+        fseek(diccionario, -sizeof(ENT), SEEK_END);
         fwrite(&aux, sizeof(ENT), 1, diccionario);
         fwrite(&nvo, sizeof(ENT), 1, diccionario);
         closeFile(diccionario);
@@ -170,8 +178,9 @@ int bajaEnt(char *nom){
     ENT aux, prev;
     FILE *diccionario;
     char nomEnt[TAM];
-    nomEntidad(nomEnt);
-    if (openFile(nom)){
+    res = openFile(nom);
+    if (res){
+        nomEntidad(nomEnt);
         do {
             fread(&aux, sizeof(ENT), 1, diccionario);
         } while (!strcmp(nomEnt, aux.nomEnt));
@@ -187,11 +196,14 @@ int bajaEnt(char *nom){
     return res;
 }
 
-int consultEnt(char *nom, char *nomEnt){
+int consultEnt(char *nom){
     int res = 0;
+    char nomEnt[TAM];
     ENT aux;
     FILE *diccionario;
-    if(openFile(nom)){
+    res = openFile(nom);
+    if(res){
+        nomEntidad(nomEnt);
         while(fread(&aux, sizeof(ENT), 1, diccionario) && !strcmp(nomEnt, aux.nomEnt))
         if (!strcmp(nomEnt, aux.nomEnt))
             printEnt(nomEnt);
@@ -202,7 +214,13 @@ int consultEnt(char *nom, char *nomEnt){
 
 int actuEntidad(char *nom){
     int res = 0;
+    char nomEnt[TAM];
+    res = openFile(nom);
+    if (res){
+        nomEntidad(nomEnt);
+        printf("Ingrese el nuevo nombre: ");
 
+    }
     return res;
 }
 int reportEnt(char *nom){
