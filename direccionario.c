@@ -24,6 +24,31 @@ typedef struct{
     long link;
 } ATR;
 
+// Declaraciones
+// Manejo archivos
+int openFile(FILE **diccionario);
+int closeFile(FILE *diccionario);
+// Diccionario
+int creaDiccionario(FILE *diccionario);
+void nomDiccionario(char *nom);
+int iniDicc(FILE *diccionario);
+// Menús
+int menuGeneral();
+int menuSeleccion();
+int menuEntidad();
+int menuAtributo();
+// Entidades
+ENT capEnt();
+void nomEntidad(char *nom);
+void printEnt(char *nomEnt);
+int altaEnt(FILE *diccionario);
+int bajaEnt(FILE *diccionario);
+int consultEnt(FILE *diccionario);
+int actuEntidad(FILE *diccionario);
+void reportEnt(FILE *diccionario);
+// Atributos
+void printAtr(ENT ent, ATR atr);
+
 int main(){
     int op;
     FILE *diccionario;
@@ -33,6 +58,8 @@ int main(){
         break;
         case 2:
         break;
+        case 3: printf("Saliendo..Adiós:)\n");
+        break;
         default: printf("Opción inválida\n");
         break;
     }
@@ -40,11 +67,11 @@ int main(){
 }
 
 // Manejo archivos
-int openFile(FILE *diccionario){
+int openFile(FILE **diccionario){
     int res = 0;
     char nom[TAM];
     nomDiccionario(nom);
-    diccionario = fopen(nom, "ab");
+    *diccionario = fopen(nom, "ab");
     if (diccionario)
         res = 1;
     return res;
@@ -52,6 +79,20 @@ int openFile(FILE *diccionario){
 
 int closeFile(FILE *diccionario){
     fclose(diccionario);
+    return 1;
+}
+
+// Diccionario
+void nomDiccionario(char *nom){
+    printf("Ingrese el nombre del diccionario: ");
+    scanf("%s", nom);
+    strcat(nom, ".dic");
+}
+
+int iniDicc(FILE *diccionario){
+    int res = 0;
+    long aux = EMPTY;
+    fwrite(&aux, sizeof(long), 1, diccionario);
     return 1;
 }
 
@@ -73,12 +114,13 @@ int creaDiccionario(FILE *diccionario){
                 if (diccionario)
                     res = 1;
         break;
-        case 2: if(openFile(diccionario))
+        case 2: if(openFile(&diccionario))
                 res = 1;
         break;
         case 3: printf("Archivo cerrado\n");
+                res = 1;
         break;
-        default: printf("Opción inválida\n");
+        default:printf("Opción inválida\n");
         break;
     }
     return res;
@@ -136,11 +178,6 @@ int menuAtributo(){
 }
 
 // Entidades
-void nomEntidad(char *nom){
-    printf("Ingrese el nombre de la entidad: ");
-    scanf("%s", nom);
-}
-
 ENT capEnt(){
     ENT nvo;
     char nom[TAM];
@@ -148,6 +185,11 @@ ENT capEnt(){
     strcat(nvo.nomEnt, nom);
     nvo.headAtr = nvo.headDato = nvo.link = EMPTY;
     return nvo;
+}
+
+void nomEntidad(char *nom){
+    printf("Ingrese el nombre de la entidad: ");
+    scanf("%s", nom);
 }
 
 void printEnt(char *nomEnt){
@@ -158,31 +200,6 @@ void printEnt(char *nomEnt){
         printf("Nombre de la entidad: %s", aux.nomEnt);
     else 
         printf("No se encontró la entidad\n");
-}
-
-// Antributos
-void printAtr(ENT ent, ATR atr){
-    long dir;
-    FILE *diccionario;
-    printf("Atributos de la entidad: %s", ent.nomEnt);
-    fseek(diccionario, ent.headAtr, SEEK_SET);
-    do{
-        fread(&dir, sizeof(long), 1, diccionario);
-    } while (dir != EMPTY);
-}
-
-// Diccionario
-void nomDiccionario(char *nom){
-    printf("Ingrese el nombre del diccionario: ");
-    scanf("%s", nom);
-    strcat(nom, ".dic");
-}
-
-int iniDicc(FILE *diccionario){
-    int res = 0;
-    long aux = EMPTY;
-    fwrite(&aux, sizeof(long), 1, diccionario);
-    return 1;
 }
 
 int altaEnt(FILE *diccionario){
@@ -199,7 +216,7 @@ int altaEnt(FILE *diccionario){
     fseek(diccionario, -sizeof(ENT), SEEK_END);
     fwrite(&aux, sizeof(ENT), 1, diccionario);
     fwrite(&nvo, sizeof(ENT), 1, diccionario);
-    closeFile(diccionario);
+    res = 1;
     return res;
 }
 
@@ -235,40 +252,40 @@ int consultEnt(FILE *diccionario){
         printEnt(nomEnt);
         res = 1;
     }
-    closeFile(diccionario);
     return res;
 }
 
-int actuEntidad(char *nom){
-    int res;
+int actuEntidad(FILE *diccionario){
+    int res = 0;
     char nomEnt[TAM], nvoNomEnt[TAM];
     ENT aux;
-    FILE *diccionario;
-    res = openFile(nom);
-    if (res){
-        printf("\tActualiza de entidad\n");
-        nomEntidad(nomEnt);
-        while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
-        if (!strcmp(nomEnt, aux.nomEnt)){
-            printf("\tActualiza Entidad\n");
-            nomEntidad(nvoNomEnt);
-            fseek(diccionario, -sizeof(ENT), SEEK_CUR);
-            strcpy(aux.nomEnt, nvoNomEnt);
-        }
+    printf("\tActualiza de entidad\n");
+    nomEntidad(nomEnt);
+    while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
+    if (!strcmp(nomEnt, aux.nomEnt)){
+        printf("\tActualiza Entidad\n");
+        nomEntidad(nvoNomEnt);
+        fseek(diccionario, -sizeof(ENT), SEEK_CUR);
+        strcpy(aux.nomEnt, nvoNomEnt);
+        res = 1;
     }
     return res;
 }
 
-int reportEnt(char *nom){
-    int res;
+void reportEnt(FILE *diccionario){
     ENT aux;
+    while(fread(&aux, sizeof(ENT), 1, diccionario))
+        printEnt(aux.nomEnt);
+}
+
+// Antributos
+void printAtr(ENT ent, ATR atr){
+    long dir;
     FILE *diccionario;
-    res = openFile(nom);
-    if(res){
-        while(fread(&aux, sizeof(ENT), 1, diccionario))
-            printEnt(aux.nomEnt);
-        closeFile(diccionario);
-    }
-    return res;
+    printf("Atributos de la entidad: %s", ent.nomEnt);
+    fseek(diccionario, ent.headAtr, SEEK_SET);
+    do{
+        fread(&dir, sizeof(long), 1, diccionario);
+    } while (dir != EMPTY);
 }
 
