@@ -118,18 +118,18 @@ int creaDiccionario(FILE **diccionario){
     }
     switch (op){
         case 1: *diccionario = fopen(nom, "wb");
-                printf("Abriendo...");
+                printf("Creando...");
                 if (diccionario){
-                    printf("Diccionario abierto\n");
+                    printf("Diccionario creado\n");
                     iniDicc(diccionario);
                     res = 1;
                 } else printf("Error al abrir diccionario\n");
 
         break;
         case 2: *diccionario = fopen(nom, "ab");
-                printf("Creando...");
+                printf("Abriendo...");
                 if (diccionario){
-                    printf("Diccionario Creado\n");
+                    printf("Diccionario abierto\n");
                     res = 1;
                 } else printf("Error al abrir diccionario\n");
         break;
