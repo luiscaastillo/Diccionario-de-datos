@@ -29,9 +29,9 @@ typedef struct{
 int openFile(FILE **diccionario);
 int closeFile(FILE *diccionario);
 // Diccionario
-int creaDiccionario(FILE *diccionario);
+int creaDiccionario(FILE **diccionario);
 void nomDiccionario(char *nom);
-int iniDicc(FILE *diccionario);
+int iniDicc(FILE **diccionario);
 // Menús
 int menuGeneral();
 int menuSeleccion();
@@ -54,15 +54,16 @@ int main(){
     FILE *diccionario;
     op = menuGeneral();
     switch (op){
-        case 1:
+        case 1: creaDiccionario(&diccionario);
         break;
-        case 2:
+        case 2: openFile(&diccionario);
         break;
         case 3: printf("Saliendo..Adiós:)\n");
         break;
         default: printf("Opción inválida\n");
         break;
     }
+    closeFile(diccionario);
     return 0;
 }
 
@@ -72,8 +73,13 @@ int openFile(FILE **diccionario){
     char nom[TAM];
     nomDiccionario(nom);
     *diccionario = fopen(nom, "ab");
-    if (diccionario)
+    printf("Abriendo...");
+    if (diccionario){
         res = 1;
+        printf("Diccionario abierto\n");
+    }
+    else
+        printf("Error al abrir diccionario\n");
     return res;
 }
 
@@ -89,33 +95,43 @@ void nomDiccionario(char *nom){
     strcat(nom, ".dic");
 }
 
-int iniDicc(FILE *diccionario){
+int iniDicc(FILE **diccionario){
     int res = 0;
     long aux = EMPTY;
-    fwrite(&aux, sizeof(long), 1, diccionario);
+    fwrite(&aux, sizeof(long), 1, *diccionario);
     return 1;
 }
 
-int creaDiccionario(FILE *diccionario){
-    int res = 0, op;
+int creaDiccionario(FILE **diccionario){
+    int res = 0, op = 1;
     char nom[TAM];
     nomDiccionario(nom);
-    diccionario = fopen(nom, "rb");
-    if (diccionario){
-        printf("\tEl diccionario ya existe, seleccione una opción: ");
+    *diccionario = fopen(nom, "rb");
+    if (*diccionario){
+        printf("\tEl diccionario ya existe\n");
         printf("1. Sobreescribirlo\n");
         printf("2. Abrir el diccionario existente\n");
         printf("3. Salir\n");
+        printf("Ingrese la opción que desea: ");
         scanf("%d", &op);
-        closeFile(diccionario);
+        closeFile(*diccionario);
     }
     switch (op){
-        case 1: diccionario = fopen(nom, "wb");
-                if (diccionario)
+        case 1: *diccionario = fopen(nom, "wb");
+                printf("Abriendo...");
+                if (diccionario){
+                    printf("Diccionario abierto\n");
+                    iniDicc(diccionario);
                     res = 1;
+                } else printf("Error al abrir diccionario\n");
+
         break;
-        case 2: if(openFile(&diccionario))
-                res = 1;
+        case 2: *diccionario = fopen(nom, "ab");
+                printf("Creando...");
+                if (diccionario){
+                    printf("Diccionario Creado\n");
+                    res = 1;
+                } else printf("Error al abrir diccionario\n");
         break;
         case 3: printf("Archivo cerrado\n");
                 res = 1;
