@@ -48,7 +48,7 @@ int actuEntidad(FILE *diccionario);
 void reportEnt(FILE *diccionario);
 // Atributos
 void printAtr(ENT ent, ATR atr);
-// 
+
 int main(){
     int op;
     FILE *diccionario;
