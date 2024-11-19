@@ -50,20 +50,39 @@ void reportEnt(FILE *diccionario);
 void printAtr(ENT ent, ATR atr);
 
 int main(){
-    int op;
+    int op, res = 0;
     FILE *diccionario;
-    op = menuGeneral();
-    switch (op){
-        case 1: creaDiccionario(&diccionario);
-        break;
-        case 2: openFile(&diccionario);
-        break;
-        case 3: printf("Saliendo..Adiós:)\n");
-        break;
-        default: printf("Opción inválida\n");
-        break;
+        op = menuGeneral();
+        switch (op){
+            case 1: res = creaDiccionario(&diccionario);
+            break;
+            case 2: res = openFile(&diccionario);
+            break;
+            case 3: printf("Saliendo..Adiós:)\n");
+                    res = 0;
+            break;
+            default:printf("Opción inválida\n");
+                    printf("Ingrese la opción que desea: ");
+                    scanf("%d", &op);
+            break;
+        }
+    if (res){
+            op = menuSeleccion();
+            switch (op){
+                case 1: menuEntidad();
+                break;
+                case 2: menuAtributo();
+                break;
+                // Opcion atributos
+                case 3: 
+                break;
+                default:printf("Opción inválida\n");
+                        printf("Ingrese la opción que desea: ");
+                        scanf("%d", &op);
+                break;
+            }
+        closeFile(diccionario);
     }
-    closeFile(diccionario);
     return 0;
 }
 
@@ -103,7 +122,7 @@ int iniDicc(FILE **diccionario){
 }
 
 int creaDiccionario(FILE **diccionario){
-    int res = 0, op = 1;
+    int res, op = 1;
     char nom[TAM];
     nomDiccionario(nom);
     *diccionario = fopen(nom, "rb");
@@ -118,7 +137,7 @@ int creaDiccionario(FILE **diccionario){
     }
     switch (op){
         case 1: *diccionario = fopen(nom, "wb");
-                printf("Creando...");
+                printf("Sobreescribiendo...");
                 if (diccionario){
                     printf("Diccionario creado\n");
                     iniDicc(diccionario);
@@ -133,8 +152,8 @@ int creaDiccionario(FILE **diccionario){
                     res = 1;
                 } else printf("Error al abrir diccionario\n");
         break;
-        case 3: printf("Archivo cerrado\n");
-                res = 1;
+        case 3: printf("Saliendo..Adiós:)\n");
+                res = 0;
         break;
         default:printf("Opción inválida\n");
         break;
