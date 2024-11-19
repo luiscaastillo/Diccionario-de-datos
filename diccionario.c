@@ -40,7 +40,7 @@ int menuAtributo();
 // Entidades
 ENT capEnt();
 void nomEntidad(char *nom);
-void printEnt(char *nomEnt);
+void printEnt(FILE *diccionario, char *nomEnt);
 int altaEnt(FILE *diccionario);
 int bajaEnt(FILE *diccionario);
 int consultEnt(FILE *diccionario);
@@ -50,37 +50,49 @@ void reportEnt(FILE *diccionario);
 void printAtr(ENT ent, ATR atr);
 
 int main(){
-    int op, res = 0;
+    int op, op2, res = 0;
     FILE *diccionario;
-        op = menuGeneral();
+    op = menuGeneral();
+    switch (op){
+        case 1: res = creaDiccionario(&diccionario);
+        break;
+        case 2: res = openFile(&diccionario);
+        break;
+        case 3: printf("Saliendo..Adiós:)\n");
+                res = 0;
+        break;
+        default:printf("Opción inválida\n");
+                printf("Ingrese la opción que desea: ");
+                scanf("%d", &op);
+        break;
+    }
+    if (res){
+        op = menuSeleccion();
         switch (op){
-            case 1: res = creaDiccionario(&diccionario);
+            case 1: op2 = menuEntidad();
             break;
-            case 2: res = openFile(&diccionario);
+            case 2: op2 = menuAtributo();
             break;
-            case 3: printf("Saliendo..Adiós:)\n");
-                    res = 0;
+            // Opcion atributos
+            case 3: 
             break;
             default:printf("Opción inválida\n");
                     printf("Ingrese la opción que desea: ");
                     scanf("%d", &op);
             break;
         }
-    if (res){
-            op = menuSeleccion();
-            switch (op){
-                case 1: menuEntidad();
-                break;
-                case 2: menuAtributo();
-                break;
-                // Opcion atributos
-                case 3: 
-                break;
-                default:printf("Opción inválida\n");
-                        printf("Ingrese la opción que desea: ");
-                        scanf("%d", &op);
-                break;
-            }
+        switch (op2){
+            case 1: altaEnt(diccionario);
+            break;
+            case 2: bajaEnt(diccionario);
+            break;
+            case 3: consultEnt(diccionario);
+            break;
+            case 4: actuEntidad(diccionario);
+            break;
+            case 5: reportEnt(diccionario);
+            break;
+        }
         closeFile(diccionario);
     }
     return 0;
@@ -115,7 +127,6 @@ void nomDiccionario(char *nom){
 }
 
 int iniDicc(FILE **diccionario){
-    int res = 0;
     long aux = EMPTY;
     fwrite(&aux, sizeof(long), 1, *diccionario);
     return 1;
@@ -227,9 +238,8 @@ void nomEntidad(char *nom){
     scanf("%s", nom);
 }
 
-void printEnt(char *nomEnt){
+void printEnt(FILE *diccionario, char *nomEnt){
     ENT aux;
-    FILE *diccionario;
     while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
     if (!strcmp(nomEnt, aux.nomEnt))
         printf("Nombre de la entidad: %s", aux.nomEnt);
@@ -284,7 +294,7 @@ int consultEnt(FILE *diccionario){
     nomEntidad(nomEnt);
     while(fread(&aux, sizeof(ENT), 1, diccionario) && strcmp(nomEnt, aux.nomEnt));
     if (!strcmp(nomEnt, aux.nomEnt)){
-        printEnt(nomEnt);
+        printEnt(diccionario, nomEnt);
         res = 1;
     }
     return res;
@@ -310,7 +320,8 @@ int actuEntidad(FILE *diccionario){
 void reportEnt(FILE *diccionario){
     ENT aux;
     while(fread(&aux, sizeof(ENT), 1, diccionario))
-        printEnt(aux.nomEnt);
+        printEnt(diccionario, aux.nomEnt);
+    printf("Hola");
 }
 
 // Antributos
