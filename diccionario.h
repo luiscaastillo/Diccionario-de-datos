@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Definición de constantes
 #define EMPTY -1
 #define TAM 30
 
@@ -24,37 +25,37 @@ typedef struct {
 } ATR;
 
 // Manejo de archivos
-int openFile(FILE **diccionario, char *modo, char *nom);
-int closeFile(FILE *diccionario);
-long posIniLec(FILE *diccionario);
+int abreArch(FILE **diccionario, char *modo, char *nom);
+int cierraArch(FILE *diccionario);
+void nomArch(char *nom);
+int iniArch(FILE **diccionario);
+int diccRepetido(FILE **diccionario, char *nom);
+long leeHead(FILE *diccionario);
+
+// Utilidades
+int opValida(int nMax);
 
 // Operaciones del Diccionario
-int creaDiccionario(FILE **diccionario);
-void nomDiccionario(char *nom);
-int iniDicc(FILE **diccionario);
+int creaDiccionario(FILE **diccionario, char *nom);
 
 // Menús
 void menuGeneral(FILE **diccionario);
-void menuSeleccion(FILE **diccionario);
-int menuEntidad(FILE **diccionario);
+int menuSeleccion(FILE **diccionario);
+int menuEnt(FILE **diccionario);
 int menuAtributo(FILE **diccionario);
 
 // Operaciones de Entidades
-ENT capEnt();
-void nomEntidad(char *nom);
-void printEnt(FILE *diccionario, char *nomEnt);
 int altaEnt(FILE **diccionario);
 int bajaEnt(FILE **diccionario);
 int consultEnt(FILE *diccionario);
 int actuEntidad(FILE **diccionario);
 int reporteEnt(FILE *diccionario);
 
-// Operaciones de Atributos
-void printAtr(FILE *diccionario, ENT ent, ATR atr);  // Corregida la firma
-int altaAtr(FILE **diccionario, ENT ent);  // Sugerida
-int bajaAtr(FILE **diccionario, ENT ent);  // Sugerida
-int consultaAtr(FILE *diccionario, ENT ent);  // Sugerida
-int actualizaAtr(FILE **diccionario, ENT ent);  // Sugerida
-int reporteAtr(FILE *diccionario, ENT ent);  // Sugerida
+// Operaciones de Atributos (por implementar)
+int altaAtr(FILE **diccionario, ENT *ent);
+int bajaAtr(FILE **diccionario, ENT *ent);
+int consultaAtr(FILE *diccionario, ENT *ent);
+int actualizaAtr(FILE **diccionario, ENT *ent);
+int reporteAtr(FILE *diccionario, ENT *ent);
 
 #endif // DICCIONARIO_H
