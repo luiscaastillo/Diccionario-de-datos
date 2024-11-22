@@ -39,10 +39,15 @@ int opValida(int nMax);
 int creaDiccionario(FILE **diccionario, char *nom);
 
 // Menús
-void menuGeneral(FILE **diccionario);
+int menuGeneral(FILE **diccionario, char *nom);
 int menuSeleccion(FILE **diccionario);
 int menuEnt(FILE **diccionario);
-int menuAtributo(FILE **diccionario);
+int menuAtr(FILE **diccionario);
+
+// Utilidad entidades
+ENT creaEntidad();
+void nomEnt(char *nom);
+void muestraEnt(FILE *diccionario, char *nomEnt);
 
 // Operaciones de Entidades
 int altaEnt(FILE **diccionario);
