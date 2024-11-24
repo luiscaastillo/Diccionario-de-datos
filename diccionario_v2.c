@@ -1,6 +1,5 @@
 #include "diccionario.h"
 
-
 int main(){
     int res;
     char nom[TAM];
@@ -44,8 +43,7 @@ int iniArch(FILE **diccionario){
 int creaDiccionario(FILE **diccionario, char *nom){
     int op, res, aux = diccRepetido(diccionario, nom);
     if (aux){
-        op = opValida(3);
-        switch (op){
+        switch (aux){
             case 1: res = abreArch(diccionario, "wb+", nom);
                     if (res){
                         iniArch(diccionario);
@@ -137,7 +135,6 @@ int menuGeneral(FILE **diccionario, char *nom){
 int menuSeleccion(FILE **diccionario){
     int op, aux, res = 0;
     long head = leeHead(*diccionario);
-    printf("Cabecera: %ld\n", head);
     printf("\tMenú de Selección\n");
     printf("1. Trabajar Entidades\n");
     printf("2. Trabajar Atributo\n");
@@ -176,24 +173,21 @@ int menuEnt(FILE **diccionario){
     op = opValida(6);
     switch (op){
         case 1: 
-                // res = altaEnt(diccionario);
-                res = 1;
+                res = altaEnt(diccionario);
                 if (res)
                     printf("Entidad dada de alta\n");
                 else
                     printf("Error\n");
         break;
         case 2: 
-                // res = bajaEnt(diccionario);
-                res = 1;
+                res = bajaEnt(diccionario);
                 if (res)
                     printf("Entidad dada de baja\n");
                 else
                     printf("Error\n");
         break;
         case 3: 
-                // res = consultEnt(*diccionario);
-                res = 1;
+                res = consultaEnt(*diccionario);
         break;
         case 4: 
                 // res = actuEntidad(diccionario);
@@ -204,8 +198,7 @@ int menuEnt(FILE **diccionario){
                     printf("Error\n");
         break;
         case 5: 
-                // res = reporteEnt(*diccionario);
-                res = 1;
+                res = reporteEnt(*diccionario);
         break;
     }
     return res;
@@ -261,7 +254,7 @@ int menuAtr(FILE **diccionario){
 ENT creaEntidad(){
     ENT nvo;
     char nom[TAM];
-    nomEntidad(nom);
+    nomEnt(nom);
     strcpy(nvo.nomEnt, nom);
     nvo.headAtr = nvo.headDato = nvo.link = EMPTY;
     return nvo;
@@ -274,19 +267,129 @@ void nomEnt(char *nom){
 
 void muestraEnt(FILE *diccionario, char *nomEnt){
     ENT aux;
-    long head, link;
+    long head;
     int band = 0;
     head = leeHead(diccionario);
-    fseek(diccionario, head, SEEK_SET);
     do {
         fread(&aux, sizeof(ENT), 1, diccionario);
-        if(!strcmp(nomEnt, aux.nomEnt)){
+        if (!strcmp(nomEnt, aux.nomEnt)){
             printf("Nombre: %s\n", aux.nomEnt);
             band = 1;
         }
         fseek(diccionario, aux.link, SEEK_SET);
-    } while(aux.link != EMPTY);
+    } while (aux.link != EMPTY);
     if (!band)
         printf("No se encontró la entidad\n");
 }
 
+int altaEnt(FILE **diccionario){
+    ENT nvo, aux;
+    long posEnt, posPrev, head;
+    int res = 1;
+    printf("\tAlta de entidad\n");
+    head = leeHead(*diccionario);
+    nvo = creaEntidad();
+    // Si esta vacía
+    if (head == EMPTY){
+        fseek(*diccionario, 0, SEEK_END);
+        posEnt = ftell(*diccionario);
+        head = posEnt;
+        fwrite(&head, sizeof(long), 1, *diccionario);
+    }
+    else {
+        // Buscar Repetido
+        posPrev = EMPTY;
+        posEnt = head;
+        while (posEnt != EMPTY && res){
+            posPrev = posEnt;
+            fseek(*diccionario, posEnt, SEEK_SET);
+            fread(&aux, sizeof(ENT), 1, *diccionario);
+            if (!strcmp(aux.nomEnt, nvo.nomEnt))
+                res = 0;
+            posEnt = aux.link;
+        }
+        // Si NO lo encontró
+        if (res){
+            fseek(*diccionario, 0, SEEK_END);
+            aux.link = ftell(*diccionario);
+            fseek(*diccionario, -sizeof(ENT), SEEK_CUR);
+            fwrite(&aux, sizeof(ENT), 1, *diccionario);
+            fwrite(&nvo, sizeof(ENT), 1, *diccionario);
+            printf("Entidad dada de alta\n");
+        }
+        else
+            printf("Error\n");
+    }
+    return res;
+}
+
+int bajaEnt(FILE **diccionario){
+    int res = 0;
+    long posAct, posAnt, head;
+    char nom[TAM];
+    ENT aux, prev;
+    printf("\tBaja de entidad\n");
+    nomEnt(nom);
+    head = leeHead(*diccionario);
+    fseek(*diccionario, head, SEEK_SET);
+    if (head != EMPTY){
+        posAnt = head;
+        while (aux.link != EMPTY && strcmp(aux.nomEnt, nom)){
+            posAnt = aux.link;
+            fread(&aux, sizeof(ENT), 1, *diccionario);
+        }
+        if (!strcmp(nom, aux.nomEnt)){
+            posAnt = ftell(*diccionario) - sizeof(ENT);
+            if (posAct == head){
+                head = aux.link;
+                fseek(*diccionario, 0, SEEK_SET);
+                fwrite(&head, sizeof(long), 1, *diccionario);
+            }
+            else {
+                fseek(*diccionario, posAnt, SEEK_SET);
+                fread(&prev, sizeof(ENT), 1, *diccionario);
+                prev.link = aux.link;
+                fseek(*diccionario, posAct, SEEK_SET);
+                fwrite(&aux, sizeof(ENT), 1, *diccionario);
+            }
+        }
+        posAnt = posAct;
+        fseek(*diccionario, aux.link, SEEK_SET);
+    }
+    return res;
+}
+int consultaEnt(FILE *diccionario){
+    ENT aux;
+    long head;
+    int res = 0;
+    char nom[TAM];
+    nomEnt(nom);
+    head = leeHead(diccionario);
+    while (head != EMPTY && strcmp(nom, aux.nomEnt)){
+        fread(&aux, sizeof(ENT), 1, diccionario);
+        fseek(diccionario, aux.link, SEEK_SET);
+        head = aux.link;
+    }
+    if (!strcmp(nom, aux.nomEnt)){
+        printf("Nombre: %s\n", aux.nomEnt);
+        res = 1;
+    }
+    else
+        printf("No se encontró la entidad\n");
+    return res;
+}
+
+int reporteEnt(FILE *diccionario){
+    long head;
+    ENT aux;
+    printf("\t--- Reporte de Entidades ---\n");
+    head = leeHead(diccionario);
+    while (head != EMPTY){
+        fseek(diccionario, head, SEEK_SET);
+        fread(&aux, sizeof(ENT), 1, diccionario);
+        printf("Nombre de la entidad: %s", aux.nomEnt);
+        printf("Hola\n");
+        head = aux.link;
+    }
+    return 1;
+}

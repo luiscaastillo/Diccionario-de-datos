@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Definición de constantes
+// Constantes
 #define EMPTY -1
 #define TAM 30
 
@@ -52,7 +52,7 @@ void muestraEnt(FILE *diccionario, char *nomEnt);
 // Operaciones de Entidades
 int altaEnt(FILE **diccionario);
 int bajaEnt(FILE **diccionario);
-int consultEnt(FILE *diccionario);
+int consultaEnt(FILE *diccionario);
 int actuEntidad(FILE **diccionario);
 int reporteEnt(FILE *diccionario);
 
