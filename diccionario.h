@@ -47,7 +47,6 @@ int menuAtr(FILE **diccionario);
 // Utilidad entidades
 ENT creaEntidad();
 void nomEnt(char *nom);
-void muestraEnt(FILE *diccionario, char *nomEnt);
 
 // Operaciones de Entidades
 int altaEnt(FILE **diccionario);
