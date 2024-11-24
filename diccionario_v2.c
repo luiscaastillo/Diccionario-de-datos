@@ -34,9 +34,8 @@ void nomArch(char *nom){
 }
 
 int iniArch(FILE **diccionario){
-    long aux = EMPTY;
-    fwrite(&aux, sizeof(long), 1, *diccionario);
-    long head = leeHead(*diccionario);
+    long head = EMPTY;
+    fwrite(&head, sizeof(long), 1, *diccionario);
     return 1;
 }
 
@@ -163,6 +162,8 @@ int menuSeleccion(FILE **diccionario){
 
 int menuEnt(FILE **diccionario){
     int op, res = 0;
+    cierraArch(*diccionario);
+    abreArch(diccionario, "rb+", "test.dic");
     printf("\tMenú Entidades\n");
     printf("1. Alta\n");
     printf("2. Baja\n");
@@ -292,9 +293,10 @@ int altaEnt(FILE **diccionario){
     // Si esta vacía
     if (head == EMPTY){
         fseek(*diccionario, 0, SEEK_END);
-        posEnt = ftell(*diccionario);
-        head = posEnt;
+        head = ftell(*diccionario);
+        fseek(*diccionario, 0, SEEK_SET);
         fwrite(&head, sizeof(long), 1, *diccionario);
+        fwrite(&nvo, sizeof(ENT), 1, *diccionario);
     }
     else {
         // Buscar Repetido
@@ -387,8 +389,7 @@ int reporteEnt(FILE *diccionario){
     while (head != EMPTY){
         fseek(diccionario, head, SEEK_SET);
         fread(&aux, sizeof(ENT), 1, diccionario);
-        printf("Nombre de la entidad: %s", aux.nomEnt);
-        printf("Hola\n");
+        printf("Nombre de la entidad: %s\n", aux.nomEnt);
         head = aux.link;
     }
     return 1;
