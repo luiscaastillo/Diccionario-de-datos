@@ -186,7 +186,7 @@ int menuEnt(FILE **diccionario){
             break;
             case 3: res = consultaEnt(*diccionario);
             break;
-            case 4: res = actuEntidad(diccionario);
+            case 4: res = actualizaEnt(diccionario);
             break;
             case 5: res = reporteEnt(*diccionario);
             break;
@@ -200,48 +200,37 @@ int menuEnt(FILE **diccionario){
 
 int menuAtr(FILE **diccionario){
     int op, res;
-    printf("\tMenú de atributos\n");
-    printf("1. Alta\n");
-    printf("2. Baja\n");
-    printf("3. Consulta\n");
-    printf("4. Actualizar\n");
-    printf("5. Reporte\n");
-    printf("6. Regresar\n");
-    op = opValida(6);
-    switch (op){
-        case 1: 
-                // res = altaEnt(diccionario);
-                res = 1;
-                if (res)
-                    printf("Atributo dado de alta\n");
-                else
-                    printf("Error\n");
-        break;
-        case 2: 
-                // res = bajaEnt(diccionario);
-                res = 1;
-                if (res)
-                    printf("Atributo dado de baja\n");
-                else
-                    printf("Error\n");
-        break;
-        case 3: 
-                // res = consultEnt(*diccionario);
-                res = 1;
-        break;
-        case 4: 
-                // res = actuEntidad(diccionario);
-                res = 1;
-                if (res)
-                    printf("Atributo actualizado\n");
-                else
-                    printf("Error\n");
-        break;
-        case 5: 
-                // res = reporteEnt(*diccionario);
-                res = 1;
-        break;
-    }
+    do {
+        printf("\tMenú de atributos\n");
+        printf("1. Alta\n");
+        printf("2. Baja\n");
+        printf("3. Consulta\n");
+        printf("4. Actualizar\n");
+        printf("5. Reporte\n");
+        printf("6. Regresar\n");
+        printf("7. Salir\n");
+        op = opValida(7);
+        switch (op){
+            case 1: // res = altaEnt(diccionario);
+                    res = 1;
+            break;
+            case 2: // res = bajaEnt(diccionario);
+                    res = 1;
+            break;
+            case 3: // res = consultEnt(*diccionario);
+                    res = 1;
+            break;
+            case 4: // res = actuEntidad(diccionario);
+                    res = 1;
+            break;
+            case 5: // res = reporteEnt(*diccionario);
+                    res = 1;
+            break;
+            case 7: printf("Saliendo..Adiós c:\n");
+                    res = EMPTY;
+            break;
+        }
+    } while (op < 6);
     return res;
 }
 
@@ -362,7 +351,7 @@ int consultaEnt(FILE *diccionario){
     return res;
 }
 
-int actuEntidad(FILE **diccionario){
+int actualizaEnt(FILE **diccionario){
     int res = 0;
     long head = leeHead(*diccionario);
     char nom[TAM], nvoNom[TAM];
@@ -404,4 +393,20 @@ int reporteEnt(FILE *diccionario){
         head = aux.link;
     }
     return 1;
+}
+
+int altaAtr(FILE **diccionario){
+
+}
+int bajaAtr(FILE **diccionario){
+
+}
+int consultaAtr(FILE *diccionario){
+
+}
+int actualizaAtr(FILE **diccionario){
+
+}
+int reporteAtr(FILE *diccionario){
+
 }

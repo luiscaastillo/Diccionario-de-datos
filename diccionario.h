@@ -52,14 +52,14 @@ void nomEnt(char *nom);
 int altaEnt(FILE **diccionario);
 int bajaEnt(FILE **diccionario);
 int consultaEnt(FILE *diccionario);
-int actuEntidad(FILE **diccionario);
+int actualizaEnt(FILE **diccionario);
 int reporteEnt(FILE *diccionario);
 
 // Operaciones de Atributos (por implementar)
-int altaAtr(FILE **diccionario, ENT *ent);
-int bajaAtr(FILE **diccionario, ENT *ent);
-int consultaAtr(FILE *diccionario, ENT *ent);
-int actualizaAtr(FILE **diccionario, ENT *ent);
-int reporteAtr(FILE *diccionario, ENT *ent);
+int altaAtr(FILE **diccionario);
+int bajaAtr(FILE **diccionario);
+int consultaAtr(FILE *diccionario);
+int actualizaAtr(FILE **diccionario);
+int reporteAtr(FILE *diccionario);
 
 #endif // DICCIONARIO_H
