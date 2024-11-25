@@ -48,6 +48,10 @@ int menuAtr(FILE **diccionario);
 ENT creaEntidad();
 void nomEnt(char *nom);
 
+// Utilidad atributos
+ATR creaAtributo();
+void nomAtr(char *nom);
+
 // Operaciones de Entidades
 int altaEnt(FILE **diccionario);
 int bajaEnt(FILE **diccionario);

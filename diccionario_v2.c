@@ -211,20 +211,15 @@ int menuAtr(FILE **diccionario){
         printf("7. Salir\n");
         op = opValida(7);
         switch (op){
-            case 1: // res = altaEnt(diccionario);
-                    res = 1;
+            case 1: res = altaAtr(diccionario);
             break;
-            case 2: // res = bajaEnt(diccionario);
-                    res = 1;
+            case 2: res = bajaAtr(diccionario);
             break;
-            case 3: // res = consultEnt(*diccionario);
-                    res = 1;
+            case 3: res = consultaAtr(*diccionario);
             break;
-            case 4: // res = actuEntidad(diccionario);
-                    res = 1;
+            case 4: res = actualizaAtr(diccionario);
             break;
-            case 5: // res = reporteEnt(*diccionario);
-                    res = 1;
+            case 5: res = reporteAtr(*diccionario);
             break;
             case 7: printf("Saliendo..Adiós c:\n");
                     res = EMPTY;
@@ -249,7 +244,7 @@ ATR creaAtributo(){
     nomAtr(nom);
     strcpy(nvo.nomAtr, nom);
     printf("\tTipo de atributo\n");
-    printf("1 Char\n");
+    printf("1. Char\n");
     printf("2. Entero\n");
     printf("3. Flotante\n");
     printf("4. Cadena\n");
@@ -267,7 +262,6 @@ ATR creaAtributo(){
     nvo.link = EMPTY;
     return nvo;
 }
-
 
 void nomEnt(char *nom){
     printf("Ingrese el nombre de la entidad: ");
@@ -427,23 +421,106 @@ int reporteEnt(FILE *diccionario){
 }
 
 int altaAtr(FILE **diccionario){
-    int res;
-    char ent[TAM], atr[TAM];
+    ATR nvo, aux;
+    long posPrev, headArch, headAtr, posEnt;
+    int res = 0, res2 = 1;
+    char nomEntidad[TAM];
     ENT ent;
-    nomEnt(ent);
-    nomAtr(atr);
-
+    printf("\tAlta de atributo\n");
+    headArch = leeHead(*diccionario);
+    // Busca Entidad
+    nomEnt(nomEntidad);
+    while (headArch != EMPTY && !res){
+        posEnt = headArch;
+        fseek(*diccionario, headArch, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, *diccionario);
+        headArch = ent.link;
+        if (!strcmp(nomEntidad, ent.nomEnt))
+            res = 1;
+    }
+    // Si la encuentra
+    if (res){
+        headAtr = ent.headAtr;
+        nvo = creaAtributo();
+        // Si no hay atributos
+        if (headAtr == EMPTY){
+            fseek(*diccionario, 0, SEEK_END);
+            headAtr = ftell(*diccionario);
+            fwrite(&nvo, sizeof(ATR), 1, *diccionario);
+            ent.headAtr = headAtr;
+            fseek(*diccionario, posEnt, SEEK_SET);
+            fwrite(&ent, sizeof(ENT), 1, *diccionario);
+        }
+        else {
+            // Buscar Repetido
+            posPrev = EMPTY;
+            while (headAtr != EMPTY && res){
+                posPrev = headAtr;
+                fseek(*diccionario, headAtr, SEEK_SET);
+                fread(&aux, sizeof(ATR), 1, *diccionario);
+                if (!strcmp(aux.nomAtr, nvo.nomAtr))
+                    res2 = 0;
+                headAtr = aux.link;
+            }
+            // Si NO hay repetido
+            if (res2){
+                fseek(*diccionario, 0, SEEK_END);
+                aux.link = ftell(*diccionario);
+                fwrite(&nvo, sizeof(ATR), 1, *diccionario);
+                fseek(*diccionario, posPrev, SEEK_SET);
+                fwrite(&aux, sizeof(ATR), 1, *diccionario);
+                printf("Atributo dado de alta\n");
+            }
+            else {
+                printf("Error el atributo ya existe\n");
+            }
+        }
+    }
     return res;
 }
-int bajaAtr(FILE **diccionario){
 
+int bajaAtr(FILE **diccionario){
+    int res = 0;
+    return res;
 }
 int consultaAtr(FILE *diccionario){
-
+    int res = 0;
+    return res;
 }
 int actualizaAtr(FILE **diccionario){
+    int res = 0;
+    return res;
 
 }
 int reporteAtr(FILE *diccionario){
-
+    int res = 0, cont = 1;
+    char nomEntidad[TAM];
+    long posEnt, head;
+    ENT ent;
+    ATR atr;
+    printf("\t--- Reporte de Atributos ---\n");
+    nomEnt(nomEntidad);
+    printf("Atributos de \"%s\":\n", nomEntidad);
+    // Busca entidad
+    posEnt = leeHead(diccionario);
+    while (posEnt != EMPTY && !res){
+        fseek(diccionario, posEnt, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, diccionario);
+        posEnt = ent.link;
+        if (!strcmp(nomEntidad, ent.nomEnt)){
+            res = 1;
+        }
+    }
+    // Imprime atributos
+    if (res){
+        head = ent.headAtr;
+        while (head != EMPTY){
+            fseek(diccionario, head, SEEK_SET);
+            fread(&atr, sizeof(ATR), 1, diccionario);
+            printf("%d. %30s\tTipo: %2d\n", cont, atr.nomAtr, atr.tipo);
+            cont++;
+            head = atr.link;
+        }
+    }
+    return res;
 }
