@@ -243,8 +243,39 @@ ENT creaEntidad(){
     return nvo;
 }
 
+ATR creaAtributo(){
+    ATR nvo;
+    char nom[TAM];
+    nomAtr(nom);
+    strcpy(nvo.nomAtr, nom);
+    printf("\tTipo de atributo\n");
+    printf("1 Char\n");
+    printf("2. Entero\n");
+    printf("3. Flotante\n");
+    printf("4. Cadena\n");
+    nvo.tipo = opValida(4);
+    switch (nvo.tipo){
+        case 1: nvo.tam = sizeof(char);
+        break;
+        case 2: nvo.tam = sizeof(int);
+        break;
+        case 3: nvo.tam = sizeof(float);
+        break;
+        case 4: nvo.tam = strlen(nvo.nomAtr);
+        break;
+    }
+    nvo.link = EMPTY;
+    return nvo;
+}
+
+
 void nomEnt(char *nom){
     printf("Ingrese el nombre de la entidad: ");
+    scanf("%s", nom);
+}
+
+void nomAtr(char *nom){
+    printf("Ingrese el nombre del atributo: ");
     scanf("%s", nom);
 }
 
@@ -396,7 +427,13 @@ int reporteEnt(FILE *diccionario){
 }
 
 int altaAtr(FILE **diccionario){
+    int res;
+    char ent[TAM], atr[TAM];
+    ENT ent;
+    nomEnt(ent);
+    nomAtr(atr);
 
+    return res;
 }
 int bajaAtr(FILE **diccionario){
 
