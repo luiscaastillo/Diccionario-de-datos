@@ -43,6 +43,7 @@ int menuGeneral(FILE **diccionario, char *nom);
 int menuSeleccion(FILE **diccionario);
 int menuEnt(FILE **diccionario);
 int menuAtr(FILE **diccionario);
+int menuDat(FILE **diccionario);
 
 // Utilidad entidades
 ENT creaEntidad();
@@ -71,6 +72,6 @@ int altaDat(FILE **diccionario);
 int bajaDat(FILE **diccionario);
 int consultaDat(FILE *diccionario);
 int actualizaDat(FILE **diccionario);
-int reporteDat(FILE *diccionario);
+int reporteGen(FILE *diccionario);
 
 #endif // DICCIONARIO_H
