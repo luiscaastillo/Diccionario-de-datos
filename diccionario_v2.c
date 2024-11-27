@@ -737,12 +737,12 @@ int altaDat(FILE **diccionario){
     ENT ent;
     ATR atr;
     printf("\t--- Alta dato ---\n");
-    posEnt = leeHead(diccionario);
+    posEnt = leeHead(*diccionario);
     // Busca Entidad
     nomEnt(nomEntidad);
     while (posEnt != EMPTY && !res){
-        fseek(diccionario, posEnt, SEEK_SET);
-        fread(&ent, sizeof(ENT), 1, diccionario);
+        fseek(*diccionario, posEnt, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, *diccionario);
         if (!strcmp(nomEntidad, ent.nomEnt))
             res = 1;
         else
@@ -755,8 +755,8 @@ int altaDat(FILE **diccionario){
     posAtr = ent.headAtr;
     nomAtr(nomAtributo);
     while (posAtr != EMPTY){
-        fseek(diccionario, posAtr, SEEK_SET);
-        fread(&atr, sizeof(ATR), 1, diccionario);
+        fseek(*diccionario, posAtr, SEEK_SET);
+        fread(&atr, sizeof(ATR), 1, *diccionario);
         tamBloq = atr.tam + sizeof(long);
         dato = malloc(tamBloq);
         printf("Ingrese valor de: %7s\n", atr.nomAtr);
@@ -794,17 +794,21 @@ int altaDat(FILE **diccionario){
 }
 
 int bajaDat(FILE **diccionario){
-
+    int res = 0;
+    return res;
 }
 
 int consultaDat(FILE *diccionario){
-
+    int res = 0;
+    return res;   
 }
 
 int actualizaDat(FILE **diccionario){
-
+    int res = 0;
+    return res;
 }
 
 int reporteDat(FILE *diccionario){
-
+    int res = 0;
+    return res;
 }

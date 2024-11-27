@@ -66,4 +66,11 @@ int consultaAtr(FILE *diccionario);
 int actualizaAtr(FILE **diccionario);
 int reporteAtr(FILE *diccionario);
 
+// Operaciones de Datos
+int altaDat(FILE **diccionario);
+int bajaDat(FILE **diccionario);
+int consultaDat(FILE *diccionario);
+int actualizaDat(FILE **diccionario);
+int reporteDat(FILE *diccionario);
+
 #endif // DICCIONARIO_H
