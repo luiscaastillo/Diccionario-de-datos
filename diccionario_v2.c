@@ -700,8 +700,8 @@ int altaDat(FILE **diccionario){
     ATR atr;
     aux = res = 0;
     printf("\t--- Alta dato ---\n");
-    posEnt = leeHead(*diccionario);
     // Busca Entidad
+    posEnt = leeHead(*diccionario);
     nomEnt(nomEntidad);
     while (posEnt != EMPTY && !res){
         fseek(*diccionario, posEnt, SEEK_SET);
@@ -712,8 +712,10 @@ int altaDat(FILE **diccionario){
             posEnt = ent.link;
     }
     // Si NO la encuentra
-    if (!res)
+    if (!res){
+        printf("No se encontró la entidad\n");
         return res;
+    }
     
     fseek(*diccionario, 0, SEEK_END);
     posHDat = ftell(*diccionario);
@@ -727,46 +729,118 @@ int altaDat(FILE **diccionario){
         fread(&atr, sizeof(ATR), 1, *diccionario);
         tamBloq = atr.tam + sizeof(long);
         dato = malloc(tamBloq);
-        printf("Ingrese valor de \"%s\": ", atr.nomAtr);
-        switch (atr.tipo){
-            case 1: scanf(" %c", (char*) dato);
-            break;
-            case 2: scanf("%d", (int*) dato);
-            break;
-            case 3: scanf("%f", (float*) dato);
-            break;
-            case 4: scanf("%s", (char*) dato);
-            break;
+        if (dato){
+            printf("Ingrese valor de \"%s\": ", atr.nomAtr);
+            switch (atr.tipo){
+                case 1: scanf(" %c", (char*) dato);
+                break;
+                case 2: scanf("%d", (int*) dato);
+                break;
+                case 3: scanf("%f", (float*) dato);
+                break;
+                case 4: scanf("%s", (char*) dato);
+                break;
+            }
         }
 
+        *((long*)((char*) dato + atr.tam)) = EMPTY;
+        
         fseek(*diccionario, 0, SEEK_END);
-        hDat.dat = posDat = ftell(*diccionario);
-        *((long*)((char*) dato + sizeof(char))) = EMPTY;
+        posDat = ftell(*diccionario);
         fwrite(dato, tamBloq, 1, *diccionario);
+
         if (posDatAnt != EMPTY ){
             fseek(*diccionario, posDatAnt + sizeof(long), SEEK_SET);
             fwrite(&posDat, sizeof(long), 1, *diccionario);
         }
 
-        if (ent.headDato == EMPTY){
+        free(dato);
+        posDatAnt = posDat;
+        posAtr = atr.link;
+    }
+     if (ent.headDato == EMPTY){
             fseek(*diccionario, posEnt, SEEK_SET);
             fwrite(&ent, sizeof(ENT), 1, *diccionario);
-        }
+    }
         
-        if (!aux){
-            fseek(*diccionario, posHDat, SEEK_SET);
-            fwrite(&hDat, sizeof(DAT), 1, *diccionario);
-        }
-        
-        posDatAnt = posDat;
-        free(dato);
-        posAtr = atr.link;
+    if (!aux){
+        fseek(*diccionario, posHDat, SEEK_SET);
+        fwrite(&hDat, sizeof(DAT), 1, *diccionario);
     }
     return res;
 }
 
 int bajaDat(FILE **diccionario){
     int res = 0;
+    long posEnt, posHDat, posDatAnt, posDatActual;
+    char nomEntidad[TAM], datBusc[TAM];
+    ENT ent;
+    DAT hDat;
+
+    printf("\t--- Baja dato ---\n");
+    
+    posEnt = leeHead(*diccionario);
+    nomEnt(nomEntidad);
+    while (posEnt != EMPTY && !res){
+        fseek(*diccionario, posEnt, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, *diccionario);
+        if (!strcmp(nomEntidad, ent.nomEnt))
+            res = 1;
+        else
+            posEnt = ent.link;
+    }
+    
+    if (!res){
+        printf("No se encontró la entidad\n");
+        return 0;
+    }
+
+    res = 0;
+    
+    posHDat = ent.headDato;
+    posDatAnt = EMPTY;
+    
+    printf("Ingrese el nombre del dato a eliminar: ");
+    scanf("%s", datBusc);
+
+    while (posHDat != EMPTY && !res){
+        fseek(*diccionario, posHDat, SEEK_SET);
+        fread(&hDat, sizeof(DAT), 1, *diccionario);
+        
+        fseek(*diccionario, hDat.dat, SEEK_SET);
+        char nombreDato[TAM];
+        fread(nombreDato, sizeof(nombreDato), 1, *diccionario);
+
+        if (!strcmp(nombreDato, datBusc)){
+            if (posDatAnt == EMPTY){
+                ent.headDato = hDat.link;
+                
+                fseek(*diccionario, posEnt, SEEK_SET);
+                fwrite(&ent, sizeof(ENT), 1, *diccionario);
+            }
+            else {
+                fseek(*diccionario, posDatAnt, SEEK_SET);
+                DAT datAnt;
+                fread(&datAnt, sizeof(DAT), 1, *diccionario);
+                datAnt.link = hDat.link;
+                
+                // Write back the updated previous data
+                fseek(*diccionario, posDatAnt, SEEK_SET);
+                fwrite(&datAnt, sizeof(DAT), 1, *diccionario);
+            }
+            
+            printf("Dato eliminado exitosamente\n");
+            res = 1;
+            break;
+        }
+        posDatAnt = posHDat;
+        posHDat = hDat.link;
+    }
+
+    if (!res){
+        printf("No se encontró el dato\n");
+    }
+
     return res;
 }
 
