@@ -24,6 +24,11 @@ typedef struct {
     long link;
 } ATR;
 
+typedef struct {
+    long dat;
+    long link;
+} DAT;
+
 // Manejo de archivos
 int abreArch(FILE **diccionario, char *modo, char *nom);
 int cierraArch(FILE *diccionario);
@@ -34,6 +39,8 @@ long leeHead(FILE *diccionario);
 
 // Utilidades
 int opValida(int nMax);
+void muestraDato(long head, long hAtr, FILE *diccionario);
+void muestraValor(void *dato, int tipo);
 
 // Operaciones del Diccionario
 int creaDiccionario(FILE **diccionario, char *nom);
