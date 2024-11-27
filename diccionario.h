@@ -7,7 +7,7 @@
 
 // Constantes
 #define EMPTY -1
-#define TAM 30
+#define TAM 20
 
 // Definición de estructuras
 typedef struct {
@@ -59,7 +59,7 @@ int consultaEnt(FILE *diccionario);
 int actualizaEnt(FILE **diccionario);
 int reporteEnt(FILE *diccionario);
 
-// Operaciones de Atributos (por implementar)
+// Operaciones de Atributos
 int altaAtr(FILE **diccionario);
 int bajaAtr(FILE **diccionario);
 int consultaAtr(FILE *diccionario);
