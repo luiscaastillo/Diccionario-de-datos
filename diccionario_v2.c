@@ -15,7 +15,7 @@ int main(){
     if (res != 3)
         cierraArch(diccionario);
     return 0;
-}
+}   
 
 int abreArch(FILE **diccionario, char *modo, char *nom){
     int res = 0;
@@ -146,8 +146,9 @@ int menuSeleccion(FILE **diccionario){
         printf("1. Trabajar Entidades\n");
         printf("2. Trabajar Atributos\n");
         printf("3. Trabajar Dato\n");
-        printf("4. Regresar\n");
-        printf("5. Salir\n");
+        printf("4. Reporte General\n");
+        printf("5. Regresar\n");
+        printf("6. Salir\n");
         op = opValida(5);
         switch (op){
             case 1: res = menuEnt(diccionario);
@@ -156,18 +157,20 @@ int menuSeleccion(FILE **diccionario){
             break;
             case 3: res = menuDat(diccionario);
             break;
-            case 5: printf("Saliendo..Adiós c:\n");
+            case 4: res = reporteGen(*diccionario);
+            break;
+            case 6: printf("Saliendo..Adiós c:\n");
                     res = EMPTY;
             break;
         }
-        if ( res == EMPTY )
+        if (res == EMPTY)
             return res;
     } while ( op < 4 && res);
     return res;
 }
 
 int menuEnt(FILE **diccionario){
-    int op, res = 0;
+    int op, res, again = 0;
     do {
         printf("\tMenú Entidades\n");
         printf("1. Alta\n");
@@ -179,13 +182,29 @@ int menuEnt(FILE **diccionario){
         printf("7. Salir\n");
         op = opValida(7);
         switch (op){
-            case 1: res = altaEnt(diccionario);
+            case 1: do {
+                        res = altaEnt(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 2: res = bajaEnt(diccionario);
+            case 2: do {
+                        res = bajaEnt(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 3: res = consultaEnt(*diccionario);
+            case 3: do {
+                        res = consultaEnt(*diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 4: res = actualizaEnt(diccionario);
+            case 4: do {
+                        res = actualizaEnt(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
             case 5: res = reporteEnt(*diccionario);
             break;
@@ -198,7 +217,7 @@ int menuEnt(FILE **diccionario){
 }
 
 int menuAtr(FILE **diccionario){
-    int op, res;
+    int op, res, again = 0;
     do {
         printf("\tMenú de atributos\n");
         printf("1. Alta\n");
@@ -210,13 +229,29 @@ int menuAtr(FILE **diccionario){
         printf("7. Salir\n");
         op = opValida(7);
         switch (op){
-            case 1: res = altaAtr(diccionario);
+            case 1: do {
+                        res = altaAtr(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 2: res = bajaAtr(diccionario);
+            case 2: do {
+                        res = bajaAtr(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 3: res = consultaAtr(*diccionario);
+            case 3: do {
+                        res = consultaAtr(*diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 4: res = actualizaAtr(diccionario);
+            case 4: do {
+                        res = actualizaAtr(diccionario);
+                        printf("Otro? (1. Si | 0. No): ");
+                        scanf("%d", &again);
+                    } while (again);
             break;
             case 5: res = reporteAtr(*diccionario);
             break;
@@ -229,7 +264,7 @@ int menuAtr(FILE **diccionario){
 }
 
 int menuDat(FILE **diccionario){
-    int op, res;
+    int op, res, again = 0;
     do {
         printf("\tMenú de datos\n");
         printf("1. Alta\n");
@@ -241,13 +276,29 @@ int menuDat(FILE **diccionario){
         printf("7. Salir\n");
         op = opValida(7);
         switch (op){
-            case 1: res = altaDat(diccionario);
+            case 1: do {
+                        res = altaDat(diccionario);
+                        printf("Otro? (1. Si | 2. No): \n");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 2: res = bajaDat(diccionario);
+            case 2: do {
+                        res = bajaDat(diccionario);
+                        printf("Otro? (1. Si | 2. No): \n");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 3: res = consultaDat(*diccionario);
+            case 3: do {
+                        res = consultaDat(*diccionario);
+                        printf("Otro? (1. Si | 2. No): \n");
+                        scanf("%d", &again);
+                    } while (again);
             break;
-            case 4: res = actualizaDat(diccionario);
+            case 4: do {
+                        res = actualizaDat(diccionario);
+                        printf("Otro? (1. Si | 2. No): \n");
+                        scanf("%d", &again);
+                    } while (again);
             break;
             case 5: res = reporteGen(*diccionario);
             break;
@@ -374,8 +425,6 @@ int bajaEnt(FILE **diccionario){
         else {
             fseek(*diccionario, prev, SEEK_SET);
             fread(&ant, sizeof(ENT), 1, *diccionario);
-            printf("Ent actual: %s\n", aux.nomEnt);
-            printf("Ent ant: %s\n", ant.nomEnt);
             ant.link = aux.link;
             fseek(*diccionario, prev, SEEK_SET);
             fwrite(&ant, sizeof(ENT), 1, *diccionario);
@@ -692,14 +741,14 @@ int reporteAtr(FILE *diccionario){
 
 int altaDat(FILE **diccionario){
     void *dato;
-    int aux, res;
-    long posEnt, posAtr, posDat, posDatAnt, tamBloq, posHDat;
-    char nomEntidad[TAM], nomDato[TAM];
-    DAT hDat;
+    int res, prim = 0;
+    long posEnt, posSigDat, posAntDat, posHeadDat, posAntHeadDat, aux;
+    char nomEntidad[TAM];
     ENT ent;
     ATR atr;
-    aux = res = 0;
+    DAT nvo, auxDat;
     printf("\t--- Alta dato ---\n");
+
     // Busca Entidad
     posEnt = leeHead(*diccionario);
     nomEnt(nomEntidad);
@@ -711,62 +760,85 @@ int altaDat(FILE **diccionario){
         else
             posEnt = ent.link;
     }
-    // Si NO la encuentra
     if (!res){
         printf("No se encontró la entidad\n");
         return res;
     }
-    
-    fseek(*diccionario, 0, SEEK_END);
-    posHDat = ftell(*diccionario);
-    posDatAnt = hDat.link = EMPTY;
-    fwrite(&hDat, sizeof(DAT), 1, *diccionario);
-    
+    if (ent.headAtr == EMPTY){
+        printf("No hay atributos en esta entidad\n");
+        return 0;
+    }
+    // Ajustes
     res = 0;
-    posAtr = ent.headAtr;
-    while (posAtr != EMPTY){
-        fseek(*diccionario, posAtr, SEEK_SET);
+
+    //checar si es el primero, si es primero actu ent
+    // sino actu DAT (registro) 
+
+    // Escribe la cabecera de datos
+    fseek(*diccionario, 0 , SEEK_END);
+    posHeadDat = ftell(*diccionario);
+    nvo.link = nvo.dat = EMPTY;
+    fwrite(&nvo, sizeof(DAT), 1, *diccionario);
+    fseek(*diccionario, 0 , SEEK_END);
+    nvo.dat = ftell(*diccionario);
+    fwrite(&nvo, sizeof(DAT), 1, *diccionario);
+
+    // No hay datos / es el primero;
+    if (ent.headDato == EMPTY){
+        fseek(*diccionario, posEnt, SEEK_SET);
+        ent.headDato = posHeadDat;
+        fwrite(&ent, sizeof(ENT), 1, *diccionario);
+    }
+    else {
+        // recorrido DAT, guardar actual (anterior)
+        posHeadDat = ent.headDato;
+        while (posHeadDat != EMPTY){
+            posAntHeadDat = posHeadDat;
+            fseek(*diccionario, posHeadDat, SEEK_SET);
+            fread(&auxDat, sizeof(DAT), 1, *diccionario);
+            posHeadDat = auxDat.link;
+        }
+    }
+
+    auxDat.link = posHeadDat;
+    fseek(*diccionario, posAntHeadDat, SEEK_SET);
+    fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
+
+    // Lee atributos y pide datos
+    aux = ent.headAtr;
+    posAntDat = EMPTY;
+    while (aux != EMPTY){
+        fseek(*diccionario, aux, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, *diccionario);
-        tamBloq = atr.tam + sizeof(long);
-        dato = malloc(tamBloq);
-        if (dato){
-            printf("Ingrese valor de \"%s\": ", atr.nomAtr);
+        printf("Ingrese el valor de \"%s\": ", atr.nomAtr);
+        // Leer según el tipo
+        dato = malloc(atr.tam + sizeof(long));
+        if (dato)
             switch (atr.tipo){
-                case 1: scanf(" %c", (char*) dato);
+                case 1: scanf(" %c", (char*)dato); 
                 break;
-                case 2: scanf("%d", (int*) dato);
+                case 2: scanf("%d", (int*)dato); 
                 break;
-                case 3: scanf("%f", (float*) dato);
+                case 3: scanf("%f", (float*)dato); 
                 break;
-                case 4: scanf("%s", (char*) dato);
+                case 4: scanf("%s", (char*)dato); 
                 break;
             }
-        }
-
-        *((long*)((char*) dato + atr.tam)) = EMPTY;
-        
-        fseek(*diccionario, 0, SEEK_END);
-        posDat = ftell(*diccionario);
-        fwrite(dato, tamBloq, 1, *diccionario);
-
-        if (posDatAnt != EMPTY ){
-            fseek(*diccionario, posDatAnt + sizeof(long), SEEK_SET);
-            fwrite(&posDat, sizeof(long), 1, *diccionario);
-        }
+        // Primer dato
+            fseek(*diccionario, 0, SEEK_END);
+            posSigDat = ftell(*diccionario);
+            if (atr.link == EMPTY)
+                // Darle EMPTY al link del dato;
+                *((char*) dato + sizeof(char)) = EMPTY;
+            else 
+                //Darle el final del arch 
+                *((char*) dato + sizeof(char)) = posSigDat;
+            fwrite(dato, atr.tipo + sizeof(long), 1, *diccionario);
 
         free(dato);
-        posDatAnt = posDat;
-        posAtr = atr.link;
+        aux = atr.link;
     }
-     if (ent.headDato == EMPTY){
-            fseek(*diccionario, posEnt, SEEK_SET);
-            fwrite(&ent, sizeof(ENT), 1, *diccionario);
-    }
-        
-    if (!aux){
-        fseek(*diccionario, posHDat, SEEK_SET);
-        fwrite(&hDat, sizeof(DAT), 1, *diccionario);
-    }
+       
     return res;
 }
 
@@ -851,10 +923,10 @@ int consultaDat(FILE *diccionario){
     DAT hDat;
     ENT ent;
     ATR atr;
-
     printf("\t--- Consulta dato ---\n");
-    posEnt = leeHead(diccionario);
+
     // Busca Entidad
+    posEnt = leeHead(diccionario);
     nomEnt(nomEntidad);
     while (posEnt != EMPTY && !res){
         fseek(diccionario, posEnt, SEEK_SET);
@@ -883,7 +955,6 @@ int consultaDat(FILE *diccionario){
         else
             posHDat = hDat.link;
     }
-
     return res;   
 }
 
@@ -892,6 +963,8 @@ int actualizaDat(FILE **diccionario){
     return res;
 }
 
+// Agregar todos los datos de una sola entidad
+
 int reporteGen(FILE *diccionario){
     int res = 0;
     return res;
@@ -899,7 +972,6 @@ int reporteGen(FILE *diccionario){
 
 void muestraDato(long head, long hAtr, FILE *diccionario){
     void *dato;
-    int tamBloq;
     long posDat;
     DAT dat;
     ATR atr;
@@ -908,8 +980,7 @@ void muestraDato(long head, long hAtr, FILE *diccionario){
         fseek(diccionario, hAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, diccionario);
         printf("%s: ", atr.nomAtr);
-        tamBloq = atr.tam + sizeof(long);
-        dato = malloc(tamBloq);
+        dato = malloc(atr.tam);
         fseek(diccionario, posDat, SEEK_SET);
         switch (atr.tipo){
             case 1:
@@ -927,23 +998,26 @@ void muestraDato(long head, long hAtr, FILE *diccionario){
         }
         muestraValor(dato, atr.tipo);
         printf("\n");
+        free(dato);
         hAtr = atr.link;
     }
 }
 
 void muestraValor(void *dato, int tipo){
-    switch (tipo){
-        case 1:
-        printf("%c ", *(char*)dato);
-        break;
-        case 2:
-        printf("%d ", *(int*)dato);
-        break;
-        case 3:
-        printf("%.2f ", *(float*)dato);
-        break;
-        case 4:
-        printf("%10s ", (char*)dato);
-        break;
-    }
+    if (dato)
+        switch (tipo){
+            case 1:
+            printf("%c ", *(char*)dato);
+            break;
+            case 2:
+            printf("%d ", *(int*)dato);
+            break;
+            case 3:
+            printf("%.2f ", *(float*)dato);
+            break;
+            case 4:
+            printf("%10s ", (char*)dato);
+            break;
+        }
 }
+
