@@ -839,8 +839,9 @@ int altaDat(FILE **diccionario){
     nvo.link = nvo.dat = EMPTY;
     fwrite(&nvo, sizeof(DAT), 1, *diccionario);
     
-    fseek(*diccionario, 0 , SEEK_END);
+    fseek(*diccionario, 0, SEEK_END);
     nvo.dat = ftell(*diccionario);
+    fseek(*diccionario, posHeadDat, SEEK_END);
     fwrite(&nvo, sizeof(DAT), 1, *diccionario);
 
     // Primer head?
@@ -1124,7 +1125,6 @@ int reporteDat(FILE *diccionario){
         auxReporteDat(diccionario, dat.dat, ent.headAtr);
         posDat = dat.link;
     }
-    
     return res;
 }
 
@@ -1133,7 +1133,9 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
     long posNextDat, posAtr;
     ATR atr;
     DAT dat;
+    printf("funcion aux\n");
     while (hDat != EMPTY){
+        printf("a\n");
         fseek(diccionario, hAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, diccionario);
         printf("%s: ", atr.nomAtr);
