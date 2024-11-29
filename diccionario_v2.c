@@ -804,7 +804,7 @@ int reporteAtr(FILE *diccionario){
 int altaDat(FILE **diccionario){
     void *dato;
     int res, again = 0;
-    long posEnt, posSigDat, posAntDat, posHeadDat, posAntHeadDat, aux;
+    long posEnt, posSigDat, posActDat, posAntDat, posHeadDat, posAntHeadDat, aux;
     char nomEntidad[TAM];
     ENT ent;
     ATR atr;
@@ -886,14 +886,20 @@ int altaDat(FILE **diccionario){
                 }
             // Enlaces datos
             fseek(*diccionario, 0, SEEK_END);
+            posActDat = ftell(*diccionario);
+            
+            fwrite(dato, atr.tam + sizeof(long), 1, *diccionario);
             posSigDat = ftell(*diccionario);
+            fseek(*diccionario, posActDat, SEEK_SET);
+
             if (atr.link != EMPTY)
                 //Darle el final del arch 
                 *((long*)(dato + atr.tam)) = posSigDat;
             else 
                 // Darle EMPTY al link del dato;
                 *((long*)(dato + atr.tam)) = EMPTY;
-            fwrite(dato, atr.tipo + sizeof(long), 1, *diccionario);
+            fwrite(dato, atr.tam + sizeof(long), 1, *diccionario);
+            // fwrite(dato, atr.tipo + sizeof(long), 1, *diccionario);
             free(dato);
             aux = atr.link;
         }
@@ -1123,7 +1129,6 @@ int reporteDat(FILE *diccionario){
     while (posDat != EMPTY){
         fseek(diccionario, posDat, SEEK_SET);
         fread(&dat, sizeof(DAT), 1, diccionario);
-        printf("Prim. dat: %ld\n", dat.dat);
         auxReporteDat(diccionario, dat.dat, ent.headAtr);
         printf("\n");
         posDat = dat.link;
@@ -1160,7 +1165,6 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
             break;
         }
         fread(&posNextDat, sizeof(long), 1, diccionario);
-        
         /*
         switch (atr.tipo){
             case 1: fread(dato, sizeof(char), 1, diccionario);
@@ -1209,6 +1213,7 @@ int reporteGen(FILE *diccionario){
         }
         cont++;
         head = ent.link;
+        printf("\n");
     }
 
     
