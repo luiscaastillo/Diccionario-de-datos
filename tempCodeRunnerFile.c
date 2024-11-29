@@ -1,1 +1,2 @@
-posNextDat
+nk;
+                hDat = posNextD

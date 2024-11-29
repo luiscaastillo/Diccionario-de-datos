@@ -1049,7 +1049,117 @@ int consultaDat(FILE *diccionario){
 }
 
 int actualizaDat(FILE **diccionario){
-    int res = 0;
+    void *dato;
+    int res = 0, again = 0;
+    long posEnt, posHeadDat, posAntHeadDat, hDat, posAtr, posNextDat;
+    char nomEntidad[TAM], nomDatBusc[TAM], nomDato[TAM], nomAct[TAM], valDato[TAM];
+    ENT ent;
+    ATR atr;
+    DAT dat, auxDat;
+    printf("\t--- Actualiza dato ---\n");
+
+    // Busca Entidad
+    posEnt = leeHead(*diccionario);
+    nomEnt(nomEntidad);
+    while (posEnt != EMPTY && !res){
+        fseek(*diccionario, posEnt, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, *diccionario);
+        if (!strcmp(nomEntidad, ent.nomEnt))
+            res = 1;
+        else
+            posEnt = ent.link;
+    }
+    if (!res){
+        printf("No se encontró la entidad\n");
+        return res;
+    }
+    if (ent.headAtr == EMPTY){
+        printf("No hay atributos en esta entidad\n");
+        return 0;
+    }
+    do {
+        // Ajustes
+        res = 0;
+
+        // Busca el dato
+        fseek(*diccionario, ent.headAtr, SEEK_SET);
+        fread(&atr, sizeof(ATR), 1, *diccionario);
+
+        posAntHeadDat = posHeadDat = ent.headDato;
+        printf("Ingrese el nombre dato: ");
+        scanf("%s", nomDatBusc);
+        while (posHeadDat != EMPTY && !res){
+            fseek(*diccionario, posHeadDat, SEEK_SET);
+            fread(&dat, sizeof(DAT), 1, *diccionario);
+            
+            fseek(*diccionario, dat.dat, SEEK_SET);
+            fread(nomDato, atr.tam, 1, *diccionario);
+            
+            if (!strcmp(nomDatBusc, nomDato))
+                res = 1;
+            else {
+                posAntHeadDat = posHeadDat; 
+                posHeadDat = dat.link;
+            }
+        }  
+        if (!res){
+            printf("No se encontraron los datos\n");
+            return 0;
+        }
+        // Ajustes x2
+        res = 0;
+        printf("Ingrese el valor dato que quiere actualizar: ");
+        scanf("%s", nomAct);
+
+        // Busca el dato específico
+        posAtr = ent.headAtr;
+        hDat = dat.dat;
+        while (hDat != EMPTY && !res){            
+            fseek(*diccionario, posAtr, SEEK_SET);
+            fread(&atr, sizeof(ATR), 1, *diccionario);
+
+            fseek(*diccionario, hDat, SEEK_SET);
+            fread(valDato, atr.tam, 1, *diccionario);
+            fread(&posNextDat, sizeof(long), 1, *diccionario);
+            
+            if (!strcmp(nomAct, valDato))
+                res = 1;
+            else {
+                posAtr = atr.link;
+                hDat = posNextDat;
+            }
+
+        } 
+
+        if (!res){
+            printf("No se encontró el dato\n");
+            return 0;
+        }
+        // Ajustes x3
+        res = 0;
+
+        printf("Ingrese el valor de \"%s\": ", atr.nomAtr);
+        dato = malloc(atr.tam + sizeof(long));
+        switch (atr.tipo){
+            case 1: scanf(" %c", (char*)dato); 
+            break;
+            case 2: scanf("%d", (int*)dato); 
+            break;
+            case 3: scanf("%f", (float*)dato); 
+            break;
+            case 4: scanf("%s", (char*)dato); 
+            break;
+        }
+
+        fseek(*diccionario, hDat, SEEK_SET);
+        fwrite(dato, atr.tam, 1, *diccionario);
+        printf("Dato actualizado correctamente\n");
+
+        free(dato);
+
+        printf("Otro? (1. Si | 0. No): ");
+        scanf("%d", &again);
+    } while (again);
     return res;
 }
 
