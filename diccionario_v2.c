@@ -803,7 +803,7 @@ int reporteAtr(FILE *diccionario){
 
 int altaDat(FILE **diccionario){
     void *dato;
-    int res, prim = 0;
+    int res, again = 0;
     long posEnt, posSigDat, posAntDat, posHeadDat, posAntHeadDat, aux;
     char nomEntidad[TAM];
     ENT ent;
@@ -831,74 +831,75 @@ int altaDat(FILE **diccionario){
         return 0;
     }
     // Ajustes
-    res = 0; 
+    do {
+        res = 0; 
 
-    // Escribe la cabecera de datos
-    fseek(*diccionario, 0 , SEEK_END);
-    posHeadDat = ftell(*diccionario);
-    nvo.link = nvo.dat = EMPTY;
-    fwrite(&nvo, sizeof(DAT), 1, *diccionario);
-    
-    fseek(*diccionario, 0, SEEK_END);
-    nvo.dat = ftell(*diccionario);
-    fseek(*diccionario, posHeadDat, SEEK_END);
-    fwrite(&nvo, sizeof(DAT), 1, *diccionario);
-
-    // Primer head?
-    if (ent.headDato == EMPTY){
-        fseek(*diccionario, posEnt, SEEK_SET);
-        ent.headDato = posHeadDat;
-        fwrite(&ent, sizeof(ENT), 1, *diccionario);
-    }
-    else {
-        aux = ent.headDato;
-        while (aux != EMPTY){
-            posAntHeadDat = aux;
-            fseek(*diccionario, aux, SEEK_SET);
-            fread(&auxDat, sizeof(DAT), 1, *diccionario);
-            aux = auxDat.link;
-        }
-        // Actualiza head ant
-        auxDat.link = posHeadDat;
-        fseek(*diccionario, posAntHeadDat, SEEK_SET);
-        fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
-    }
-
-    // Lee atributos y pide datos
-    aux = ent.headAtr;
-    posAntDat = EMPTY;
-    while (aux != EMPTY){
-        fseek(*diccionario, aux, SEEK_SET);
-        fread(&atr, sizeof(ATR), 1, *diccionario);
-        printf("Ingrese el valor de \"%s\": ", atr.nomAtr);
-        // Leer según el tipo
-        dato = malloc(atr.tam + sizeof(long));
-        if (dato)
-            switch (atr.tipo){
-                case 1: scanf(" %c", (char*)dato); 
-                break;
-                case 2: scanf("%d", (int*)dato); 
-                break;
-                case 3: scanf("%f", (float*)dato); 
-                break;
-                case 4: scanf("%s", (char*)dato); 
-                break;
-            }
-        // Enlaces datos
+        // Escribe la cabecera de datos
+        fseek(*diccionario, 0 , SEEK_END);
+        posHeadDat = ftell(*diccionario);
+        nvo.link = nvo.dat = EMPTY;
+        fwrite(&nvo, sizeof(DAT), 1, *diccionario);
+        
         fseek(*diccionario, 0, SEEK_END);
-        posSigDat = ftell(*diccionario);
-        if (atr.link != EMPTY)
-            //Darle el final del arch 
-            *((long*)(dato + atr.tam)) = posSigDat;
-        else 
-            // Darle EMPTY al link del dato;
-            *((char*) dato + sizeof(char)) = EMPTY;
-        fwrite(dato, atr.tipo + sizeof(long), 1, *diccionario);
+        nvo.dat = ftell(*diccionario);
+        fseek(*diccionario, posHeadDat, SEEK_SET);
+        fwrite(&nvo, sizeof(DAT), 1, *diccionario);
 
-        free(dato);
-        aux = atr.link;
-    }
-       
+        // Primer head?
+        if (ent.headDato == EMPTY){
+            fseek(*diccionario, posEnt, SEEK_SET);
+            ent.headDato = posHeadDat;
+            fwrite(&ent, sizeof(ENT), 1, *diccionario);
+        }
+        else {
+            aux = ent.headDato;
+            while (aux != EMPTY){
+                posAntHeadDat = aux;
+                fseek(*diccionario, aux, SEEK_SET);
+                fread(&auxDat, sizeof(DAT), 1, *diccionario);
+                aux = auxDat.link;
+            }
+            // Actualiza head ant
+            auxDat.link = posHeadDat;
+            fseek(*diccionario, posAntHeadDat, SEEK_SET);
+            fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
+        }
+
+        // Lee atributos y pide datos
+        aux = ent.headAtr;
+        while (aux != EMPTY){
+            fseek(*diccionario, aux, SEEK_SET);
+            fread(&atr, sizeof(ATR), 1, *diccionario);
+            printf("Ingrese el valor de \"%s\": ", atr.nomAtr);
+            // Leer según el tipo
+            dato = malloc(atr.tam + sizeof(long));
+            if (dato)
+                switch (atr.tipo){
+                    case 1: scanf(" %c", (char*)dato); 
+                    break;
+                    case 2: scanf("%d", (int*)dato); 
+                    break;
+                    case 3: scanf("%f", (float*)dato); 
+                    break;
+                    case 4: scanf("%s", (char*)dato); 
+                    break;
+                }
+            // Enlaces datos
+            fseek(*diccionario, 0, SEEK_END);
+            posSigDat = ftell(*diccionario);
+            if (atr.link != EMPTY)
+                //Darle el final del arch 
+                *((long*)(dato + atr.tam)) = posSigDat;
+            else 
+                // Darle EMPTY al link del dato;
+                *((long*)(dato + atr.tam)) = EMPTY;
+            fwrite(dato, atr.tipo + sizeof(long), 1, *diccionario);
+            free(dato);
+            aux = atr.link;
+        }
+        printf("Otro? (1. Si | 0. No): ");
+        scanf("%d", &again);
+    } while (again);
     return res;
 }
 
@@ -1122,7 +1123,9 @@ int reporteDat(FILE *diccionario){
     while (posDat != EMPTY){
         fseek(diccionario, posDat, SEEK_SET);
         fread(&dat, sizeof(DAT), 1, diccionario);
+        printf("Prim. dat: %ld\n", dat.dat);
         auxReporteDat(diccionario, dat.dat, ent.headAtr);
+        printf("\n");
         posDat = dat.link;
     }
     return res;
@@ -1135,7 +1138,6 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
     DAT dat;
     printf("funcion aux\n");
     while (hDat != EMPTY){
-        printf("a\n");
         fseek(diccionario, hAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, diccionario);
         printf("%s: ", atr.nomAtr);
@@ -1143,8 +1145,24 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
         dato = malloc(atr.tam);
 
         fseek(diccionario, hDat, SEEK_SET);
-        fread(&dato, sizeof(DAT), 1, diccionario);
-
+        fread(dato, atr.tam, 1, diccionario);
+        switch (atr.tipo){
+            case 1: 
+                    printf("%c\n", *(char*)dato);
+            break;
+            case 2: 
+                    printf("%d\n", *(int*)dato);
+            break;
+            case 3: 
+                    printf("%.2f\n", *(float*)dato);
+            break;
+            case 4: 
+                    printf("%s\n", (char*)dato);
+            break;
+        }
+        fread(&posNextDat, sizeof(long), 1, diccionario);
+        
+        /*
         switch (atr.tipo){
             case 1: fread(dato, sizeof(char), 1, diccionario);
                     printf("%c\n", *(char*)dato);
@@ -1159,9 +1177,11 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
                     printf("%s\n", (char*)dato);
             break;
         }
-        fread(&posNextDat, sizeof(long), 1, diccionario);
+        */
         hAtr = atr.link;
-        hDat = posNextDat;
+        // EMPTY para revision luego es 
+        // hDat = posNextDat;
+        hDat = EMPTY;
     }
 
 }
