@@ -1133,11 +1133,10 @@ int reporteDat(FILE *diccionario){
 
 void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
     void *dato;
-    long posNextDat, posAtr;
+    long posAtr, posNextDat;
     ATR atr;
     DAT dat;
-    printf("funcion aux\n");
-    while (hDat != EMPTY){
+    while (hAtr != EMPTY){
         fseek(diccionario, hAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, diccionario);
         printf("%s: ", atr.nomAtr);
@@ -1178,15 +1177,40 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
             break;
         }
         */
-        hAtr = atr.link;
+        free(dato);
         // EMPTY para revision luego es 
-        // hDat = posNextDat;
-        hDat = EMPTY;
+        // hDat = EMPTY;
+        hDat = posNextDat;
+        hAtr = atr.link;
     }
-
 }
 
 int reporteGen(FILE *diccionario){
-    int res = 0;
-    return res;
+    int cont = 1;
+    long head;
+    long posEnt, posDat, posAtr;
+    char nomEntidad[TAM];
+    ENT ent;
+    DAT dat;
+    printf("\t--- Reporte General ---\n");
+    head = leeHead(diccionario);
+    while (head != EMPTY){
+        fseek(diccionario, head, SEEK_SET);
+        fread(&ent, sizeof(ENT), 1, diccionario);
+        printf("\tEntidad: \"%s\"\n", ent.nomEnt);
+
+        posDat = ent.headDato;
+        while (posDat != EMPTY){
+            fseek(diccionario, posDat, SEEK_SET);
+            fread(&dat, sizeof(DAT), 1, diccionario);
+            auxReporteDat(diccionario, dat.dat, ent.headAtr);
+            printf("\n");
+            posDat = dat.link;
+        }
+        cont++;
+        head = ent.link;
+    }
+
+    
+    return 1;
 }
