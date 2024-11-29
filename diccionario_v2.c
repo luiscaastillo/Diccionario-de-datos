@@ -1138,7 +1138,7 @@ int actualizaDat(FILE **diccionario){
         // Ajustes x3
         res = 0;
 
-        printf("Ingrese el valor de \"%s\": ", atr.nomAtr);
+        printf("Ingrese el NUEVO valor de \"%s\": ", atr.nomAtr);
         dato = malloc(atr.tam + sizeof(long));
         switch (atr.tipo){
             case 1: scanf(" %c", (char*)dato); 
