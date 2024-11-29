@@ -426,7 +426,7 @@ int altaEnt(FILE **diccionario){
         }
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -470,7 +470,7 @@ int bajaEnt(FILE **diccionario){
             printf("Error al dar de baja\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -496,7 +496,7 @@ int consultaEnt(FILE *diccionario){
             printf("No se encontró la entidad\n");
             printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -528,7 +528,7 @@ int actualizaEnt(FILE **diccionario){
             printf("No se encontró la entidad");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -610,7 +610,7 @@ int altaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -676,7 +676,7 @@ int bajaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -720,7 +720,7 @@ int consultaAtr(FILE *diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -768,7 +768,7 @@ int actualizaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -911,7 +911,7 @@ int altaDat(FILE **diccionario){
         }
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -948,6 +948,8 @@ int bajaDat(FILE **diccionario){
 
         fseek(*diccionario, ent.headAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, *diccionario);
+        printf("Ingrese el valor del primer dato: ");
+        scanf("%s", nomDatBusc);
 
         posAntHeadDat = posHeadDat = ent.headDato;
         while (posHeadDat != EMPTY && !res){
@@ -956,8 +958,6 @@ int bajaDat(FILE **diccionario){
             
             fseek(*diccionario, dat.dat, SEEK_SET);
             fread(dato, atr.tam, 1, *diccionario);
-            printf("Ingrese el valor del primer dato: ");
-            scanf("%s", nomDatBusc);
             
             if (!strcmp(nomDatBusc, dato))
                 res = 1;
@@ -982,7 +982,7 @@ int bajaDat(FILE **diccionario){
             printf("No se encontraron los datos\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
@@ -1022,14 +1022,14 @@ int consultaDat(FILE *diccionario){
         fread(&atr, sizeof(ATR), 1, diccionario);
 
         posAntHeadDat = posHeadDat = ent.headDato;
+        printf("Ingrese el valor del primer dato: ");
+        scanf("%s", nomDatBusc);
         while (posHeadDat != EMPTY && !res){
             fseek(diccionario, posHeadDat, SEEK_SET);
             fread(&dat, sizeof(DAT), 1, diccionario);
             
             fseek(diccionario, dat.dat, SEEK_SET);
             fread(dato, atr.tam, 1, diccionario);
-            printf("Ingrese el valor del primer dato: ");
-            scanf("%s", nomDatBusc);
             
             if (!strcmp(nomDatBusc, dato))
                 res = 1;
@@ -1044,7 +1044,7 @@ int consultaDat(FILE *diccionario){
             printf("No se encontraron los datos\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again && res);
+    } while (again);
     return res;
 }
 
