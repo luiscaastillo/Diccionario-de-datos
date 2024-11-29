@@ -426,7 +426,7 @@ int altaEnt(FILE **diccionario){
         }
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -470,7 +470,7 @@ int bajaEnt(FILE **diccionario){
             printf("Error al dar de baja\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -496,7 +496,7 @@ int consultaEnt(FILE *diccionario){
             printf("No se encontró la entidad\n");
             printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -528,7 +528,7 @@ int actualizaEnt(FILE **diccionario){
             printf("No se encontró la entidad");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -610,7 +610,7 @@ int altaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -632,6 +632,12 @@ int bajaAtr(FILE **diccionario){
         else
             headArch = ent.link;
     }
+
+    if (ent.headDato != EMPTY){
+        printf("No se puede ingresar atributos si ya existen datos\n");
+        return 0;
+    }
+
     // Si la encuentra
     do {
         if (res){
@@ -670,7 +676,7 @@ int bajaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -714,7 +720,7 @@ int consultaAtr(FILE *diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -762,7 +768,7 @@ int actualizaAtr(FILE **diccionario){
             printf("No se encontró la entidad\n");
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
@@ -905,19 +911,19 @@ int altaDat(FILE **diccionario){
         }
         printf("Otro? (1. Si | 0. No): ");
         scanf("%d", &again);
-    } while (again);
+    } while (again && res);
     return res;
 }
 
 int bajaDat(FILE **diccionario){
-    int res = 0;
-    long posEnt, posHDat, posDatAnt, posDatActual;
-    char nomEntidad[TAM], datBusc[TAM];
+    int res = 0, again = 0;
+    long posEnt, posHeadDat, posAntHeadDat, posSigHead, posAtr;
+    char nomEntidad[TAM], nomDatBusc[TAM], dato[TAM];
     ENT ent;
-    DAT hDat;
-
-    printf("\t--- Baja dato ---\n");
-    
+    ATR atr;
+    DAT dat, auxDat;
+    printf("\t--- Baja de datos ---\n");
+    // Busca Entidad
     posEnt = leeHead(*diccionario);
     nomEnt(nomEntidad);
     while (posEnt != EMPTY && !res){
@@ -928,69 +934,65 @@ int bajaDat(FILE **diccionario){
         else
             posEnt = ent.link;
     }
-    
     if (!res){
         printf("No se encontró la entidad\n");
+        return res;
+    }
+    if (ent.headAtr == EMPTY){
+        printf("No hay atributos en esta entidad\n");
         return 0;
     }
+    do {
+        // Ajustes
+        res = 0;
 
-    res = 0;
-    
-    posHDat = ent.headDato;
-    posDatAnt = EMPTY;
-    
-    printf("Ingrese el nombre del dato a eliminar: ");
-    scanf("%s", datBusc);
+        fseek(*diccionario, ent.headAtr, SEEK_SET);
+        fread(&atr, sizeof(ATR), 1, *diccionario);
 
-    while (posHDat != EMPTY && !res){
-        fseek(*diccionario, posHDat, SEEK_SET);
-        fread(&hDat, sizeof(DAT), 1, *diccionario);
-        
-        fseek(*diccionario, hDat.dat, SEEK_SET);
-        char nombreDato[TAM];
-        fread(nombreDato, sizeof(nombreDato), 1, *diccionario);
-
-        if (!strcmp(nombreDato, datBusc)){
-            if (posDatAnt == EMPTY){
-                ent.headDato = hDat.link;
-                
-                fseek(*diccionario, posEnt, SEEK_SET);
-                fwrite(&ent, sizeof(ENT), 1, *diccionario);
-            }
-            else {
-                fseek(*diccionario, posDatAnt, SEEK_SET);
-                DAT datAnt;
-                fread(&datAnt, sizeof(DAT), 1, *diccionario);
-                datAnt.link = hDat.link;
-                
-                // Write back the updated previous data
-                fseek(*diccionario, posDatAnt, SEEK_SET);
-                fwrite(&datAnt, sizeof(DAT), 1, *diccionario);
-            }
+        posAntHeadDat = posHeadDat = ent.headDato;
+        while (posHeadDat != EMPTY && !res){
+            fseek(*diccionario, posHeadDat, SEEK_SET);
+            fread(&dat, sizeof(DAT), 1, *diccionario);
             
-            printf("Dato eliminado exitosamente\n");
-            res = 1;
-            break;
+            fseek(*diccionario, dat.dat, SEEK_SET);
+            fread(dato, atr.tam, 1, *diccionario);
+            printf("Ingrese el valor del primer dato: ");
+            scanf("%s", nomDatBusc);
+            
+            if (!strcmp(nomDatBusc, dato))
+                res = 1;
+            else {
+                posAntHeadDat = posHeadDat; 
+                posHeadDat = dat.link;
+            }
         }
-        posDatAnt = posHDat;
-        posHDat = hDat.link;
-    }
+        if (res){
+            posSigHead = dat.link;
+            fseek(*diccionario, posAntHeadDat, SEEK_SET);
+            fread(&auxDat, sizeof(DAT), 1, *diccionario);    
+            
+            auxDat.link = posSigHead;
 
-    if (!res){
-        printf("No se encontró el dato\n");
-    }
+            fseek(*diccionario, posAntHeadDat, SEEK_SET);
+            fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
 
+            printf("Datos dados de baja\n");
+        }
+        else 
+            printf("No se encontraron los datos\n");
+        printf("Otro? (1. Si | 0. No): ");
+        scanf("%d", &again);
+    } while (again && res);
     return res;
 }
 
 int consultaDat(FILE *diccionario){
-    void *dato, *nomDat;
-    int res = 0;
-    long posEnt, posDat, posAtr;
-    char nomEntidad[TAM];
+    int res = 0, again = 0;
+    long posEnt, posHeadDat, posAntHeadDat, posSigHead, posAtr;
+    char nomEntidad[TAM], nomDatBusc[TAM], dato[TAM];
     ENT ent;
     ATR atr;
-    DAT dat;
+    DAT dat, auxDat;
     printf("\t--- Consulta dato ---\n");
 
     // Busca Entidad
@@ -1012,84 +1014,37 @@ int consultaDat(FILE *diccionario){
         printf("No hay atributos en esta entidad\n");
         return 0;
     }
-    // Ajustes
-    res = 0;
-    fseek(diccionario, ent.headAtr, SEEK_SET);
-    fread(&atr, sizeof(ATR), 1, diccionario);
-    nomDat = dato = malloc(atr.tam + sizeof(long));
+    do {
+        // Ajustes
+        res = 0;
 
-    if (!nomDat){
-        printf("Error al pedir memoria\n");
-        return 0;
-    }
-    printf("Ingrese el dato que quiere consultar: ");
-    switch (atr.tipo){
-        case 1: scanf(" %c", (char*)dato);
-        break;
-        case 2: scanf("%d", (int*)dato);
-        break;
-        case 3: scanf("%f", (float*)dato);
-        break;
-        case 4: scanf("%s", (char*)dato);
-        break;
-    }
-
-    posDat = ent.headDato;
-    while (posDat != EMPTY && !res){
-        fseek(diccionario, posDat, SEEK_SET);
-        fread(&dat, sizeof(DAT), 1, diccionario);
-        fseek(diccionario, dat.dat, SEEK_SET);
-        switch (atr.tipo){
-            case 1: fread(dato, sizeof(char), 1, diccionario);
-                    if ((char*)nomDat == (char*)dato)
-                    res = 1;
-            break;
-            case 2: fread(dato, sizeof(int), 1, diccionario);
-                    if ((int*)nomDat == (int*)dato)
-                    res = 1;
-            break;
-            case 3: fread(dato, sizeof(float), 1, diccionario);
-                    if ((float*)nomDat == (float*)dato)
-                    res = 1;
-            break;
-            case 4: fread(dato, TAM, 1, diccionario);
-                    if (!strcmp((char*)nomDat, (char*)dato))
-                    res = 1;
-            break;
-        }
-        free(dato);
-        posDat = dat.link;
-    }
-
-    if (!res){
-        printf("No se encontró el dato\n");
-        return res;
-    }
-
-    while (posAtr != EMPTY){
-        fseek(diccionario, posAtr, SEEK_SET);
+        fseek(diccionario, ent.headAtr, SEEK_SET);
         fread(&atr, sizeof(ATR), 1, diccionario);
-        printf("%s: ", atr.nomAtr);
-        fseek(diccionario, posDat, SEEK_SET);
-        fread(&dat, sizeof(DAT), 1, diccionario);
-        fseek(diccionario, dat.dat, SEEK_SET);
-        fread(dato, sizeof(DAT), 1, diccionario);
-         switch (atr.tipo){
-            case 1: fread(dato, sizeof(char), 1, diccionario);
-                    printf("%c\n", *(char*)dato);
-            break;
-            case 2: fread(dato, sizeof(int), 1, diccionario);
-                    printf("%d\n", *(int*)dato);
-            break;
-            case 3: fread(dato, sizeof(float), 1, diccionario);
-                    printf("%.2f\n", *(float*)dato);
-            break;
-            case 4: fread(dato, TAM, 1, diccionario);
-                    printf("%s\n", (char*)dato);
-            break;
-        }
-        posAtr = atr.link;
-    }
+
+        posAntHeadDat = posHeadDat = ent.headDato;
+        while (posHeadDat != EMPTY && !res){
+            fseek(diccionario, posHeadDat, SEEK_SET);
+            fread(&dat, sizeof(DAT), 1, diccionario);
+            
+            fseek(diccionario, dat.dat, SEEK_SET);
+            fread(dato, atr.tam, 1, diccionario);
+            printf("Ingrese el valor del primer dato: ");
+            scanf("%s", nomDatBusc);
+            
+            if (!strcmp(nomDatBusc, dato))
+                res = 1;
+            else {
+                posAntHeadDat = posHeadDat; 
+                posHeadDat = dat.link;
+            }
+        }  
+        if (res)
+            auxReporteDat(diccionario, dat.dat,ent.headAtr);
+        else 
+            printf("No se encontraron los datos\n");
+        printf("Otro? (1. Si | 0. No): ");
+        scanf("%d", &again);
+    } while (again && res);
     return res;
 }
 
@@ -1151,36 +1106,16 @@ void auxReporteDat(FILE *diccionario, long hDat, long hAtr){
         fseek(diccionario, hDat, SEEK_SET);
         fread(dato, atr.tam, 1, diccionario);
         switch (atr.tipo){
-            case 1: 
-                    printf("%c\n", *(char*)dato);
+            case 1: printf("%c\n", *(char*)dato);
             break;
-            case 2: 
-                    printf("%d\n", *(int*)dato);
+            case 2: printf("%d\n", *(int*)dato);
             break;
-            case 3: 
-                    printf("%.2f\n", *(float*)dato);
+            case 3: printf("%.2f\n", *(float*)dato);
             break;
-            case 4: 
-                    printf("%s\n", (char*)dato);
+            case 4: printf("%s\n", (char*)dato);
             break;
         }
         fread(&posNextDat, sizeof(long), 1, diccionario);
-        /*
-        switch (atr.tipo){
-            case 1: fread(dato, sizeof(char), 1, diccionario);
-                    printf("%c\n", *(char*)dato);
-            break;
-            case 2: fread(dato, sizeof(int), 1, diccionario);
-                    printf("%d\n", *(int*)dato);
-            break;
-            case 3: fread(dato, sizeof(float), 1, diccionario);
-                    printf("%.2f\n", *(float*)dato);
-            break;
-            case 4: fread(dato, TAM, 1, diccionario);
-                    printf("%s\n", (char*)dato);
-            break;
-        }
-        */
         free(dato);
         // EMPTY para revision luego es 
         // hDat = EMPTY;
@@ -1213,7 +1148,6 @@ int reporteGen(FILE *diccionario){
         }
         cont++;
         head = ent.link;
-        printf("\n");
     }
 
     
