@@ -968,14 +968,21 @@ int bajaDat(FILE **diccionario){
         }
         if (res){
             posSigHead = dat.link;
-            fseek(*diccionario, posAntHeadDat, SEEK_SET);
-            fread(&auxDat, sizeof(DAT), 1, *diccionario);    
-            
-            auxDat.link = posSigHead;
+              
+            if (posAntHeadDat == posHeadDat){
+                fseek(*diccionario, posEnt, SEEK_SET);
+                ent.headDato = posSigHead;
+                fwrite(&ent, sizeof(ENT), 1, *diccionario);
 
-            fseek(*diccionario, posAntHeadDat, SEEK_SET);
-            fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
-
+            }
+            else {
+                fseek(*diccionario, posAntHeadDat, SEEK_SET);
+                fread(&auxDat, sizeof(DAT), 1, *diccionario); 
+                
+                fseek(*diccionario, posAntHeadDat, SEEK_SET);
+                auxDat.link = posSigHead;
+                fwrite(&auxDat, sizeof(DAT), 1, *diccionario);
+            }
             printf("Datos dados de baja\n");
         }
         else 
@@ -1263,3 +1270,4 @@ int reporteGen(FILE *diccionario){
     
     return 1;
 }
+
