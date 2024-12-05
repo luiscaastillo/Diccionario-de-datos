@@ -367,7 +367,8 @@ ATR creaAtributo(){
         break;
         case 3: nvo.tam = sizeof(float);
         break;
-        case 4: nvo.tam = TAM;
+        case 4: printf("Ingrese el tamaño en bytes de la cadena: ");
+                scanf("%d", &nvo.tam);
         break;
     }
     nvo.link = EMPTY;
